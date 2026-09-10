@@ -1,0 +1,27 @@
+// Datasource PostgreSQL kết nối thông qua biến môi trường DATABASE_URL
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Generator sinh mã Prisma Client cho TypeScript (hỗ trợ cả Windows host và Alpine Linux trong Docker)
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+// Bảng lưu trữ danh sách dự án (hiển thị trên PortfolioSection và quản lý qua /admin)
+model Project {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @db.VarChar(255)
+  category    String?  @db.VarChar(100) // Phân loại: E-Commerce, Landing Page, SaaS, Web App (đồng bộ UI mẫu)
+  description String   @db.Text
+  techStack   String[] // Mảng công nghệ text[] trong PostgreSQL (Next.js, Tailwind, Postgres,...)
+  features    String[] // Các điểm nổi bật text[] hiển thị trên card (Load < 1.5s, Chuẩn SEO,...)
+  imageUrl    String   @db.VarChar(500) // Đường dẫn ảnh cover (/uploads/... hoặc URL ngoài)
+  domain      String?  @db.VarChar(500) // Link demo / production (nullable)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("projects")
+}

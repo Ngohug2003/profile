@@ -1,0 +1,71 @@
+name: Continuous Integration (CI Quality Gate)
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Job 1: Kiểm tra chất lượng mã nguồn TypeScript & Build Next.js
+  quality-check:
+    name: Typecheck & Next.js Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Cài đặt Dependencies
+        run: npm ci
+
+      - name: Sinh mã Prisma Client
+        run: npx prisma generate
+
+      - name: Kiểm tra lỗi kiểu dữ liệu TypeScript (Typecheck)
+        run: npx tsc --noEmit
+
+      - name: Build ứng dụng Next.js
+        run: npm run build
+        env:
+          # Giả lập biến môi trường dummy cho bước build trên CI
+          DATABASE_URL: "postgresql://dummy_user:dummy_password@localhost:5432/dummy_db?schema=public"
+          ADMIN_PASSWORD: "ci_test_password"
+          SESSION_SECRET: "ci_dummy_session_secret_32_characters_long"
+          NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
+
+  # Job 2: Kiểm tra khả năng đóng gói Dockerfile Standalone
+  docker-build-check:
+    name: Dockerfile Build Test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: quality-check
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Thiết lập Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build thử Docker Image (Không đẩy lên Registry)
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: portfolio-app:ci-test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
