@@ -202,7 +202,7 @@ export const appContent: AppContent = {
   },
   faq: {
     badge: "FAQ",
-    title: "Câu hỏi thường gặp",
+    title: "Câu hỏi thường gặp22222",
     description: "Giải đáp những băn khoăn phổ biến giúp bạn dễ dàng chuẩn bị và phối hợp triển khai dự án website hiệu quả.",
     faqItems: [
       {
