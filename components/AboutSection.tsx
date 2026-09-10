@@ -2,7 +2,7 @@
 
 import React from "react";
 import Image from "next/image";
-import { Code, Cpu, ShieldAlert, Laptop, Coffee, Sparkles } from "lucide-react";
+import { Code, Cpu, ShieldAlert, Laptop, Coffee } from "lucide-react";
 import { appContent } from "@/constants/content";
 
 const iconMap = {
@@ -103,9 +103,9 @@ export default function AboutSection() {
                 </div>
                 <div className="font-mono text-[5.5px] sm:text-[6.5px] text-[#7a7a7a] space-y-0.5 leading-tight">
                   <div><span className="text-[#2997ff]">const</span> <span className="text-white">dev</span> = {"{"}</div>
-                  <div className="pl-1.5">name: <span className="text-emerald-400">"Hưng"</span>,</div>
-                  <div className="pl-1.5">role: <span className="text-emerald-400">"Fullstack"</span>,</div>
-                  <div className="pl-1.5">speed: <span className="text-emerald-400">"100ms"</span></div>
+                  <div className="pl-1.5">name: <span className="text-emerald-400">&quot;Hưng&quot;</span>,</div>
+                  <div className="pl-1.5">role: <span className="text-emerald-400">&quot;Fullstack&quot;</span>,</div>
+                  <div className="pl-1.5">speed: <span className="text-emerald-400">&quot;100ms&quot;</span></div>
                   <div>{"};"}</div>
                 </div>
               </div>

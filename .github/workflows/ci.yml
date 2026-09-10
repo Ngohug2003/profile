@@ -1,9 +1,9 @@
 name: Continuous Integration (CI Quality Gate)
 
 on:
+  # Kích hoạt trên TẤT CẢ các nhánh khi có commit push lên (khi vừa tạo nhánh mới, khi push thêm code vào nhánh đó, và sau khi merge vào main)
   push:
-    branches:
-      - main
+  # Kích hoạt khi có Pull Request mở hoặc cập nhật hướng tới nhánh main
   pull_request:
     branches:
       - main
@@ -13,9 +13,9 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # Job 1: Kiểm tra chất lượng mã nguồn TypeScript & Build Next.js
+  # Job 1: Kiểm tra Lint, TypeScript & Build Next.js
   quality-check:
-    name: Typecheck & Next.js Build
+    name: Lint, Typecheck & Next.js Build
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
@@ -35,13 +35,16 @@ jobs:
       - name: Sinh mã Prisma Client
         run: npx prisma generate
 
-      - name: Kiểm tra lỗi kiểu dữ liệu TypeScript (Typecheck)
+      - name: Kiểm tra chuẩn mã nguồn (Lint Check)
+        run: npx eslint app components lib
+
+      - name: Kiểm tra lỗi kiểu dữ liệu (TypeScript Typecheck)
         run: npx tsc --noEmit
 
-      - name: Build ứng dụng Next.js
+      - name: Build ứng dụng Next.js (Compile Check)
         run: npm run build
         env:
-          # Giả lập biến môi trường dummy cho bước build trên CI
+          # Biến môi trường dummy phục vụ bước compile tĩnh trên CI
           DATABASE_URL: "postgresql://dummy_user:dummy_password@localhost:5432/dummy_db?schema=public"
           ADMIN_PASSWORD: "ci_test_password"
           SESSION_SECRET: "ci_dummy_session_secret_32_characters_long"

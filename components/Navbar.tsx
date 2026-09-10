@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Code2, Menu, X } from "lucide-react";
 import { appContent } from "@/constants/content";
-import ContactModal from "./ContactModal";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);

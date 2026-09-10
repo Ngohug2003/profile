@@ -30,7 +30,7 @@ export default async function Home() {
       imageUrl: p.imageUrl,
       domain: p.domain,
     }));
-  } catch (error) {
+  } catch {
     // Nếu cơ sở dữ liệu chưa sẵn sàng ở bước đầu local dev, không để app crash
     console.warn("Chưa thể nạp projects từ PostgreSQL (chờ Phase 3 khởi động DB). Sẽ dùng dữ liệu mẫu mặc định.");
   }

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Code2, ArrowRight, Shield, Database, Cpu, Send, Menu, X, ArrowUpRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Shield, Database, Cpu, Menu, X, ArrowUpRight, CheckCircle2 } from "lucide-react";
 
 export default function LandingAiPage() {
   const [email, setEmail] = useState("");

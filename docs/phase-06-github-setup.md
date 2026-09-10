@@ -141,41 +141,61 @@ Sau khi đã đẩy code lên GitHub, tiến hành khóa nhánh `main` để b�
    - ✅ **Require status checks to pass before merging**:
      - Tích chọn: **Require branches to be up to date before merging**.
      - Trong ô tìm kiếm kiểm tra (Status checks), tìm và chọn:
-       - `Typecheck & Next.js Build`
+       - `Lint, Typecheck & Next.js Build`
        - `Dockerfile Build Test`
 4. Bấm **Save changes** (hoặc **Create**).
 
 ---
 
-## 5. Quy Trình Làm Việc Hàng Ngày (Tạo Nhánh -> Sửa Code -> PR -> CI Xanh -> Merge)
+## 5. Quy Trình Làm Việc Tiêu Chuẩn (Branch Push -> CI Xanh -> PR -> Merge -> CI Check Lần 2)
 
-Khi bạn muốn thêm tính năng mới hoặc chỉnh sửa code:
+Quy trình phát triển chuẩn 2 lớp kiểm tra (Double CI Check Gate):
 
-1. **Từ nhánh `main`, tạo một nhánh mới:**
+```text
+[Tạo Nhánh Mới] ---> [Sửa Code & Push] ---> [CI Check Lần 1 trên Nhánh] (Lint + Typecheck + Build)
+                                                          |
+                                                    (Phải XANH 100%)
+                                                          v
+                                               [Mở Pull Request vào main]
+                                                          |
+                                                  (Khóa nút Merge nếu đỏ)
+                                                          v
+                                                 [Bấm Merge vào main]
+                                                          |
+                                                          v
+                                             [CI Check Lần 2 trên main] (Đảm bảo main luôn Xanh)
+```
+
+### Các bước thao tác thực tế:
+
+1. **Từ nhánh `main`, tạo một nhánh làm việc mới:**
    ```powershell
    git checkout -b feature/cap-nhat-giao-dien
    ```
-2. **Thực hiện chỉnh sửa code và commit:**
+2. **Thực hiện chỉnh sửa code và đẩy lên nhánh đó:**
    ```powershell
    git add .
-   git commit -m "feat: update hero section styling"
-   ```
-3. **Đẩy nhánh mới lên GitHub:**
-   ```powershell
+   git commit -m "feat: sua code giao dien moi"
    git push -u origin feature/cap-nhat-giao-dien
    ```
-4. **Tạo Pull Request trên giao diện GitHub:**
-   - GitHub sẽ tự động hiển thị nút **Compare & pull request**, bấm vào và chọn tạo PR vào nhánh `main`.
-5. **Quan sát CI chạy tự động:**
-   - GitHub Actions sẽ tự động kích hoạt workflow `Continuous Integration (CI Quality Gate)`.
-   - Nút **Merge pull request** sẽ tạm thời **bị khóa màu xám**.
-   - Khi cả 2 job `Typecheck & Next.js Build` và `Dockerfile Build Test` chạy xong và hiện **tích XANH**:
-     - Nút **Merge pull request** sẽ chuyển sang màu xanh lá.
-     - Bạn bấm **Confirm merge** để hợp nhất code an toàn vào nhánh `main`!
+3. **CI tự động kích hoạt ngay trên nhánh đó (Lớp kiểm tra 1):**
+   - Dù chưa cần mở PR, ngay khi có lệnh `git push` lên nhánh này, GitHub Actions sẽ chạy ngay workflow CI:
+     - Check Lint (`eslint`)
+     - Check Typecheck (`tsc --noEmit`)
+     - Check Build Next.js (`npm run build`)
+     - Check Build Docker (`docker build`)
+   - Bạn có thể push code nhiều lần lên nhánh đó để sửa đổi, mỗi lần push CI đều tự động kiểm tra lại cho đến khi **tích XANH 100%**.
+4. **Mở Pull Request vào nhánh `main`:**
+   - Trên GitHub, bấm **Compare & pull request** để mở PR vào `main`.
+   - GitHub sẽ hiển thị trạng thái của các check CI. Vì đã cài đặt Branch Protection, **nếu CI chưa xanh thì nút Merge bị khóa cứng (màu xám)**.
+5. **Merge PR khi CI đã Xanh:**
+   - Khi các check đều xanh, nút **Merge pull request** sáng lên -> Bấm **Confirm merge** để hợp nhất vào `main`.
+6. **CI tự động chạy tiếp lần 2 trên nhánh `main` (Lớp kiểm tra 2):**
+   - Ngay sau khi merge thành công, GitHub Actions sẽ **chạy lại toàn bộ CI một lần nữa trên chính nhánh `main`** để xác nhận mã nguồn sau khi hợp nhất vào nhánh chính vẫn hoàn toàn ổn định và đạt chuẩn xanh.
 
 ---
 
 ## 6. Kết Quả Mong Đợi
 - Toàn bộ source code, file Docker, tài liệu và kịch bản CI được lưu trữ an toàn trên GitHub.
-- Nhánh `main` được bảo vệ tuyệt đối khỏi các lỗi cú pháp TypeScript hoặc lỗi hỏng Docker build.
-- Bất kỳ đóng góp hoặc chỉnh sửa nào đều phải vượt qua CI Xanh mới được đưa vào sản phẩm.
+- Mọi commit trên bất kỳ nhánh nào đều được kiểm tra Lint, Typecheck và Build tự động.
+- Nhánh `main` được bảo vệ 2 lớp: Chỉ merge khi nhánh con xanh, và sau khi merge thì nhánh main được kiểm tra lại để luôn giữ trạng thái Xanh ổn định.

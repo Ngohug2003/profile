@@ -157,8 +157,9 @@ export default function AdminDashboardPage() {
 
       setStatusMessage({ type: 'success', text: 'Đã thêm dự án mới thành công!' });
       await loadProjects();
-    } catch (err: any) {
-      setStatusMessage({ type: 'error', text: err.message || 'Đã xảy ra lỗi khi tạo dự án.' });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tạo dự án.';
+      setStatusMessage({ type: 'error', text: message });
     } finally {
       setSubmitting(false);
     }
@@ -177,8 +178,9 @@ export default function AdminDashboardPage() {
         throw new Error('Không thể xóa dự án.');
       }
       await loadProjects();
-    } catch (err: any) {
-      alert(err.message || 'Lỗi thao tác.');
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi thao tác.';
+      alert(message);
     }
   };
 

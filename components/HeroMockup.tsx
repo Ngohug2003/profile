@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Terminal, Globe, ArrowRight, Search, Play, Laptop, FileText } from "lucide-react";
+import { Terminal, Globe } from "lucide-react";
 
 export default function HeroMockup() {
   return (
@@ -51,10 +51,10 @@ export default function HeroMockup() {
               {/* React Next.js Code Syntax Highlight */}
               <div className="space-y-1.5 leading-relaxed font-mono">
                 <div>
-                  <span className="text-[#2997ff]">import</span> <span className="text-white">React</span> <span className="text-[#2997ff]">from</span> <span className="text-emerald-400">"react"</span>;
+                  <span className="text-[#2997ff]">import</span> <span className="text-white">React</span> <span className="text-[#2997ff]">from</span> <span className="text-emerald-400">&quot;react&quot;</span>;
                 </div>
                 <div>
-                  <span className="text-[#2997ff]">import</span> <span className="text-white">Navbar</span> <span className="text-[#2997ff]">from</span> <span className="text-emerald-400">"./nav"</span>;
+                  <span className="text-[#2997ff]">import</span> <span className="text-white">Navbar</span> <span className="text-[#2997ff]">from</span> <span className="text-emerald-400">&quot;./nav&quot;</span>;
                 </div>
                 <div className="pt-1.5">
                   <span className="text-[#2997ff]">export default function</span> <span className="text-white">Home()</span> {"{"}
@@ -63,7 +63,7 @@ export default function HeroMockup() {
                   <span className="text-[#2997ff]">return</span> (
                 </div>
                 <div className="pl-6 text-[#7a7a7a]">
-                  &lt;<span className="text-rose-400">main</span> <span className="text-amber-300">className</span>=<span className="text-emerald-400">"site"</span>&gt;
+                  &lt;<span className="text-rose-400">main</span> <span className="text-amber-300">className</span>=<span className="text-emerald-400">&quot;site&quot;</span>&gt;
                 </div>
                 <div className="pl-9 text-[#7a7a7a]">
                   &lt;<span className="text-rose-400">Navbar</span> /&gt;
@@ -75,7 +75,7 @@ export default function HeroMockup() {
                   <span className="text-amber-300">seoReady</span>={"{"}<span className="text-[#2997ff]">true</span>{"}"}
                 </div>
                 <div className="pl-12 text-[#7a7a7a]">
-                  <span className="text-amber-300">speed</span>=<span className="text-emerald-400">"100ms"</span>
+                  <span className="text-amber-300">speed</span>=<span className="text-emerald-400">&quot;100ms&quot;</span>
                 </div>
                 <div className="pl-9 text-[#7a7a7a]">
                   /&gt;

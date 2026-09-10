@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Check, Layers, Globe, Search, Sparkles } from "lucide-react";
+import { Check } from "lucide-react";
 import { appContent } from "@/constants/content";
 
 export default function ServicesSection() {
