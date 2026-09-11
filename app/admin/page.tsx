@@ -95,6 +95,10 @@ export default function AdminDashboardPage() {
     try {
       setLoadingContacts(true);
       const res = await fetch('/api/contacts');
+      if (res.status === 401) {
+        router.replace('/admin/login');
+        return;
+      }
       if (res.ok) {
         const data = await res.json();
         setContacts(data);
@@ -118,6 +122,10 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
+      if (res.status === 401) {
+        router.replace('/admin/login');
+        return;
+      }
       if (res.ok) {
         await loadContacts();
         setStatusMessage({ type: 'success', text: 'Đã cập nhật trạng thái liên hệ!' });
@@ -131,6 +139,10 @@ export default function AdminDashboardPage() {
     if (!confirm(`Bạn có chắc muốn xóa yêu cầu tư vấn của "${name}"?`)) return;
     try {
       const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
+      if (res.status === 401) {
+        router.replace('/admin/login');
+        return;
+      }
       if (res.ok) {
         await loadContacts();
         setStatusMessage({ type: 'success', text: 'Đã xóa yêu cầu tư vấn thành công!' });
