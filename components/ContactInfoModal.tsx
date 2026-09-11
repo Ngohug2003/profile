@@ -36,8 +36,9 @@ export default function ContactInfoModal({ isOpen, onClose }: ContactInfoModalPr
     githubDisplay: "github.com/Ngohug2003",
     zaloUrl: "https://zalo.me/0333246944",
     avatarUrl: "/hung_developer_avatar.png",
-    cvUrl: "/uploads/Full%20Stack%20Dev%20-%20Ng%E1%BB%8D%20Vi%E1%BA%BFt%20H%C6%B0ng..pdf",
-    cvName: "Full Stack Dev - Ngọ Viết Hưng.pdf",
+    cvUrl: "/full-stack-developer-cv-ngo-viet-hung.pdf",
+    cvDownloadUrl: "/full-stack-developer-cv-ngo-viet-hung.pdf?download=1",
+    cvName: "Full Stack Developer CV - Ngo Viet Hung.pdf",
   };
 
   const handleCopy = (text: string, field: "phone" | "email") => {
@@ -102,7 +103,7 @@ export default function ContactInfoModal({ isOpen, onClose }: ContactInfoModalPr
 
             {/* Danh sách thông tin liên hệ: Gọn gàng, thoáng, không đóng hộp rườm rà */}
             <div className="divide-y divide-zinc-100 border-y border-zinc-100 py-1">
-              
+
               {/* Điện thoại & Zalo */}
               <div className="py-3.5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
@@ -250,7 +251,7 @@ export default function ContactInfoModal({ isOpen, onClose }: ContactInfoModalPr
                     <ArrowUpRight className="w-3.5 h-3.5" />
                   </a>
                   <a
-                    href={profile.cvUrl}
+                    href={profile.cvDownloadUrl}
                     download="Full Stack Dev - Ngọ Viết Hưng.pdf"
                     className="p-2 rounded-lg text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100 transition-colors cursor-pointer"
                     title="Tải CV về máy"
