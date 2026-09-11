@@ -19,14 +19,9 @@ export default async function ProjectPage() {
   let projects: ProjectItem[] = [];
 
   try {
-    const rawProjects = await Promise.race([
-      prisma.project.findMany({
-        orderBy: { createdAt: "desc" },
-      }),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("DB Timeout")), 1500)
-      ),
-    ]);
+    const rawProjects = await prisma.project.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
     if (rawProjects && rawProjects.length > 0) {
       projects = rawProjects.map((p) => ({

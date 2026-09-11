@@ -18,14 +18,9 @@ export default async function Home() {
   let initialProjects: DbProject[] = [];
 
   try {
-    const rawProjects = await Promise.race([
-      prisma.project.findMany({
-        orderBy: { createdAt: "desc" },
-      }),
-      new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("DB Timeout")), 1200)
-      ),
-    ]);
+    const rawProjects = await prisma.project.findMany({
+      orderBy: { createdAt: "desc" },
+    });
     initialProjects = rawProjects.map((p) => ({
       id: p.id,
       name: p.name,
