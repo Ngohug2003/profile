@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -8,16 +8,24 @@ export async function GET() {
   let dbStatus = 'disconnected';
   let dbLatencyMs = -1;
 
-  try {
-    const dbStart = Date.now();
-    await prisma.$queryRaw`SELECT 1`;
-    dbLatencyMs = Date.now() - dbStart;
-    dbStatus = 'healthy';
-  } catch {
-    dbStatus = 'unhealthy';
+  if (isSupabaseConfigured) {
+    try {
+      const dbStart = Date.now();
+      const { error } = await supabase.from('projects').select('id').limit(1);
+      if (!error) {
+        dbLatencyMs = Date.now() - dbStart;
+        dbStatus = 'healthy';
+      } else {
+        dbStatus = 'unhealthy';
+      }
+    } catch {
+      dbStatus = 'unhealthy';
+    }
+  } else {
+    dbStatus = 'not_configured';
   }
 
-  const isHealthy = dbStatus === 'healthy';
+  const isHealthy = dbStatus === 'healthy' || dbStatus === 'not_configured';
   const totalDurationMs = Date.now() - startTime;
 
   return NextResponse.json(
@@ -26,6 +34,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       uptimeSeconds: Math.floor(process.uptime()),
       database: {
+        provider: 'Supabase Cloud',
         status: dbStatus,
         latencyMs: dbLatencyMs,
       },

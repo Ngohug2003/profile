@@ -5,12 +5,14 @@ Tài liệu này hướng dẫn thiết lập hệ thống sao lưu tự động
 ---
 
 ## 1. Mục Tiêu
-- Viết script `scripts/backup.sh` tự động dump cơ sở dữ liệu PostgreSQL (`.sql.gz`) và nén toàn bộ ảnh trong Named Volume `/uploads` (`.tar.gz`).
-- Thiết lập quy định lưu trữ cục bộ: Chỉ giữ lại các bản sao lưu trong vòng 7 ngày gần nhất (tự động xóa các bản cũ hơn).
-- Cài đặt và cấu hình công cụ `rclone` để đẩy bản sao lưu ra dịch vụ lưu trữ đám mây độc lập bên ngoài VPS (Cloudflare R2, AWS S3, Google Drive hoặc Backblaze B2).
-- Thiết lập Cron Job thực thi sao lưu tự động vào lúc 02:00 sáng mỗi ngày.
+- **Sao lưu tự động phía Supabase Cloud:** Supabase tự động quản lý Daily Backups và Point-in-Time Recovery (PITR) cho PostgreSQL cũng như bảo toàn dữ liệu Storage CDN mà không tốn tài nguyên VPS.
+- **Hạ tầng VPS không trạng thái (Stateless):** Do không lưu DB và ảnh trên ổ đĩa VPS, nếu VPS gặp sự cố phần cứng, bạn có thể tạo mới VPS khác và triển khai lại chỉ trong 2-3 phút mà không lo mất mát dữ liệu.
 - Cấu hình Logrotate cho Docker container và Nginx để tránh tình trạng log phình to làm cạn kiệt dung lượng ổ đĩa.
 - Rà soát bảng kiểm an ninh cuối cùng trước khi công bố website ra công chúng.
+
+> [!TIP]
+> **Lợi ích vượt trội của kiến trúc Supabase Cloud:**
+> Toàn bộ dữ liệu khách hàng (Leads) và danh mục dự án được Supabase bảo vệ bằng hạ tầng đám mây phân tán tại Singapore AWS ap-southeast-1. VPS chỉ thuần túy đóng vai trò tính toán (Compute Layer), giúp loại bỏ hoàn toàn các lỗi sập ổ cứng do phình to dung lượng `pg_dump`.
 
 ---
 

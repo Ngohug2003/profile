@@ -69,6 +69,7 @@ export default function RootLayout({
   return (
     <html
       lang="vi"
+      data-scroll-behavior="smooth"
       className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased scroll-smooth`}
     >
       <body className="min-h-full flex flex-col font-sans bg-[#fafafa] text-[#09090b] selection:bg-blue-100 selection:text-blue-900">

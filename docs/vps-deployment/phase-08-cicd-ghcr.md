@@ -25,27 +25,7 @@ Tài liệu này hướng dẫn thiết lập chu trình tự động hóa tích
 ### 3.1. `docker-compose.prod.yml`
 ```yaml
 services:
-  # Cơ sở dữ liệu nội bộ - Không mở port ra ngoài Internet
-  postgres:
-    image: postgres:16-alpine
-    container_name: portfolio_postgres_prod
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    volumes:
-      - portfolio_db_data:/var/lib/postgresql/data
-    networks:
-      - portfolio_net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # Ứng dụng Next.js kéo từ GitHub Container Registry
+  # Ứng dụng Next.js Production Container (Kéo từ GitHub Container Registry)
   app:
     image: ${APP_IMAGE}:${IMAGE_TAG:-latest}
     container_name: portfolio_app_prod
@@ -55,31 +35,16 @@ services:
       - "127.0.0.1:3000:3000"
     env_file:
       - .env.production
-    depends_on:
-      postgres:
-        condition: service_healthy
-    volumes:
-      # Named Volume lưu trữ độc lập ảnh do admin tải lên
-      - portfolio_uploads_data:/app/public/uploads
-    networks:
-      - portfolio_net
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:3000/api/health || exit 1"]
-      interval: 10s
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/api/health || exit 1"]
+      interval: 15s
       timeout: 5s
       retries: 3
-      start_period: 15s
-
-networks:
-  portfolio_net:
-    driver: bridge
-
-volumes:
-  portfolio_db_data:
-    name: portfolio_db_data
-  portfolio_uploads_data:
-    name: portfolio_uploads_data
+      start_period: 20s
 ```
+
+> [!NOTE]
+> Nhờ chuyển sang sử dụng **Supabase Cloud (BaaS)**, VPS không cần chạy container PostgreSQL nội bộ và không cần named volume cho ảnh uploads. Toàn bộ hình ảnh được phân phối qua Supabase Storage CDN, giúp tiết kiệm triệt để CPU, RAM (<90MB) và loại bỏ hoàn toàn nguy cơ đầy ổ đĩa VPS.
 
 ### 3.2. `scripts/deploy.sh`
 ```bash
@@ -185,19 +150,20 @@ jobs:
         env:
           COMMIT_SHA: ${{ github.sha }}
           FULL_IMAGE_NAME: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_LOWER }}
+          SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_ANON: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          SUPABASE_SRV: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           DB_URL: ${{ secrets.DATABASE_URL }}
-          DB_USER: ${{ secrets.POSTGRES_USER }}
-          DB_PASS: ${{ secrets.POSTGRES_PASSWORD }}
-          DB_NAME: ${{ secrets.POSTGRES_DB }}
+          JWT_SEC: ${{ secrets.JWT_SECRET }}
+          ADM_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADM_PASS: ${{ secrets.ADMIN_PASSWORD }}
-          SESS_SEC: ${{ secrets.SESSION_SECRET }}
           SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
         with:
           host: ${{ secrets.VPS_SSH_HOST }}
           username: ${{ secrets.VPS_SSH_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           port: ${{ secrets.VPS_SSH_PORT }}
-          envs: COMMIT_SHA,FULL_IMAGE_NAME,DB_URL,DB_USER,DB_PASS,DB_NAME,ADM_PASS,SESS_SEC,SITE_URL
+          envs: COMMIT_SHA,FULL_IMAGE_NAME,SUPABASE_URL,SUPABASE_ANON,SUPABASE_SRV,DB_URL,JWT_SEC,ADM_EMAIL,ADM_PASS,SITE_URL
           script: |
             set -e
             DEPLOY_PATH="/home/deploy/portfolio"
@@ -205,12 +171,13 @@ jobs:
 
             # 1. Ghi file .env.production an toàn tuyệt đối qua SSH Heredoc (không echo secret ra stdout)
             cat << 'EOF' > $DEPLOY_PATH/.env.production
+            NEXT_PUBLIC_SUPABASE_URL="${SUPABASE_URL}"
+            NEXT_PUBLIC_SUPABASE_ANON_KEY="${SUPABASE_ANON}"
+            SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SRV}"
             DATABASE_URL="${DB_URL}"
-            POSTGRES_USER="${DB_USER}"
-            POSTGRES_PASSWORD="${DB_PASS}"
-            POSTGRES_DB="${DB_NAME}"
+            JWT_SECRET="${JWT_SEC}"
+            ADMIN_EMAIL="${ADM_EMAIL}"
             ADMIN_PASSWORD="${ADM_PASS}"
-            SESSION_SECRET="${SESS_SEC}"
             NEXT_PUBLIC_SITE_URL="${SITE_URL}"
             NODE_ENV="production"
             APP_IMAGE="${FULL_IMAGE_NAME}"

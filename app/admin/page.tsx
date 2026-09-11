@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import CustomSelect from '@/components/CustomSelect';
+import { supabase } from '@/lib/supabase';
 import {
   FolderKanban,
   Trash2,
@@ -79,13 +80,16 @@ export default function AdminDashboardPage() {
   const loadProjects = async () => {
     try {
       setLoadingProjects(true);
-      const res = await fetch('/api/projects');
-      if (res.ok) {
-        const data = await res.json();
-        setProjects(data);
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('createdAt', { ascending: false });
+
+      if (!error && data) {
+        setProjects(data as ProjectItem[]);
       }
     } catch {
-      console.error('Không thể nạp danh sách dự án');
+      console.error('Không thể nạp danh sách dự án từ Supabase');
     } finally {
       setLoadingProjects(false);
     }
@@ -94,17 +98,16 @@ export default function AdminDashboardPage() {
   const loadContacts = async () => {
     try {
       setLoadingContacts(true);
-      const res = await fetch('/api/contacts');
-      if (res.status === 401) {
-        router.replace('/admin/login');
-        return;
-      }
-      if (res.ok) {
-        const data = await res.json();
-        setContacts(data);
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .order('createdAt', { ascending: false });
+
+      if (!error && data) {
+        setContacts(data as ContactItem[]);
       }
     } catch {
-      console.error('Không thể nạp danh sách liên hệ');
+      console.error('Không thể nạp danh sách liên hệ từ Supabase');
     } finally {
       setLoadingContacts(false);
     }
@@ -117,19 +120,14 @@ export default function AdminDashboardPage() {
 
   const handleUpdateContactStatus = async (id: string, newStatus: string) => {
     try {
-      const res = await fetch(`/api/contacts/${id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (res.status === 401) {
-        router.replace('/admin/login');
-        return;
-      }
-      if (res.ok) {
-        await loadContacts();
-        setStatusMessage({ type: 'success', text: 'Đã cập nhật trạng thái liên hệ!' });
-      }
+      const { error } = await supabase
+        .from('contacts')
+        .update({ status: newStatus, updatedAt: new Date().toISOString() })
+        .eq('id', id);
+
+      if (error) throw error;
+      await loadContacts();
+      setStatusMessage({ type: 'success', text: 'Đã cập nhật trạng thái liên hệ!' });
     } catch {
       setStatusMessage({ type: 'error', text: 'Lỗi khi cập nhật trạng thái.' });
     }
@@ -138,15 +136,14 @@ export default function AdminDashboardPage() {
   const handleDeleteContact = async (id: string, name: string) => {
     if (!confirm(`Bạn có chắc muốn xóa yêu cầu tư vấn của "${name}"?`)) return;
     try {
-      const res = await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
-      if (res.status === 401) {
-        router.replace('/admin/login');
-        return;
-      }
-      if (res.ok) {
-        await loadContacts();
-        setStatusMessage({ type: 'success', text: 'Đã xóa yêu cầu tư vấn thành công!' });
-      }
+      const { error } = await supabase
+        .from('contacts')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      await loadContacts();
+      setStatusMessage({ type: 'success', text: 'Đã xóa yêu cầu tư vấn thành công!' });
     } catch {
       setStatusMessage({ type: 'error', text: 'Lỗi khi xóa yêu cầu tư vấn.' });
     }
@@ -185,29 +182,27 @@ export default function AdminDashboardPage() {
     setStatusMessage(null);
 
     try {
-      // 1. Tải ảnh lên /api/upload
-      const formData = new FormData();
-      formData.append('file', file);
+      // 1. Tải ảnh trực tiếp lên Supabase Storage CDN (Bucket: project-covers)
+      const fileExt = file.name.split('.').pop() || 'jpg';
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+      const { error: uploadErr } = await supabase.storage
+        .from('project-covers')
+        .upload(fileName, file, {
+          contentType: file.type,
+          upsert: false,
+        });
 
-      const uploadRes = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (uploadRes.status === 401) {
-        router.push('/admin/login');
-        return;
+      if (uploadErr) {
+        throw new Error(`Upload ảnh lên Supabase Storage thất bại: ${uploadErr.message}`);
       }
 
-      if (!uploadRes.ok) {
-        const uploadErr = await uploadRes.json();
-        throw new Error(uploadErr.error || 'Upload ảnh thất bại.');
-      }
+      const { data: publicUrlData } = supabase.storage
+        .from('project-covers')
+        .getPublicUrl(fileName);
 
-      const uploadData = await uploadRes.json();
-      const imageUrl = uploadData.url;
+      const imageUrl = publicUrlData.publicUrl;
 
-      // 2. Tạo bản ghi project qua /api/projects
+      // 2. Tạo bản ghi project trực tiếp vào bảng projects trong Supabase
       const stackArray = techStackInput
         .split(',')
         .map((s) => s.trim())
@@ -218,10 +213,9 @@ export default function AdminDashboardPage() {
         .map((s) => s.trim())
         .filter(Boolean);
 
-      const projectRes = await fetch('/api/projects', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const { error: insertErr } = await supabase
+        .from('projects')
+        .insert([{
           name,
           category,
           description,
@@ -229,17 +223,10 @@ export default function AdminDashboardPage() {
           features: featuresArray,
           imageUrl,
           domain: domain || null,
-        }),
-      });
+        }]);
 
-      if (projectRes.status === 401) {
-        router.push('/admin/login');
-        return;
-      }
-
-      if (!projectRes.ok) {
-        const prjErr = await projectRes.json();
-        throw new Error(prjErr.error || 'Lỗi khi lưu dự án.');
+      if (insertErr) {
+        throw new Error(`Lỗi khi lưu dự án vào Supabase: ${insertErr.message}`);
       }
 
       // Reset form sau khi thành công
@@ -252,7 +239,7 @@ export default function AdminDashboardPage() {
       setFile(null);
       setImagePreview(null);
 
-      setStatusMessage({ type: 'success', text: 'Đã thêm dự án mới thành công vào Database!' });
+      setStatusMessage({ type: 'success', text: 'Đã thêm dự án mới thành công vào Supabase!' });
       await loadProjects();
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Đã xảy ra lỗi khi tạo dự án.';
@@ -266,13 +253,13 @@ export default function AdminDashboardPage() {
     if (!confirm(`Bạn có chắc chắn muốn xóa dự án "${projectName}" khỏi Portfolio?`)) return;
 
     try {
-      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
-      if (res.status === 401) {
-        router.push('/admin/login');
-        return;
-      }
-      if (!res.ok) {
-        throw new Error('Không thể xóa dự án.');
+      const { error } = await supabase
+        .from('projects')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        throw new Error(`Không thể xóa dự án: ${error.message}`);
       }
       await loadProjects();
       setStatusMessage({ type: 'success', text: `Đã xóa thành công dự án "${projectName}".` });
@@ -352,14 +339,14 @@ export default function AdminDashboardPage() {
 
           <div className="bg-white border border-zinc-200/80 rounded-2xl p-5 shadow-2xs space-y-1">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-zinc-500">PostgreSQL DB</span>
-              <Database className="w-4 h-4 text-indigo-600" />
+              <span className="text-xs font-medium text-zinc-500">Supabase Cloud</span>
+              <Database className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-sm font-bold text-emerald-600 flex items-center gap-1.5 pt-1">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Đang kết nối bình thường</span>
             </div>
-            <p className="text-[11px] text-zinc-400">Port 5432 / Prisma ORM</p>
+            <p className="text-[11px] text-zinc-400">PostgreSQL + Storage CDN</p>
           </div>
         </div>
 

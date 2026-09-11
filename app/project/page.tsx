@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import ProjectNavbar from "@/components/ProjectNavbar";
 import ProjectShowcase, { ProjectItem } from "@/components/ProjectShowcase";
-import { prisma } from "@/lib/prisma";
+import { fetchProjects } from "@/lib/supabase";
 import { appContent } from "@/constants/content";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +19,7 @@ export default async function ProjectPage() {
   let projects: ProjectItem[] = [];
 
   try {
-    const rawProjects = await prisma.project.findMany({
-      orderBy: { createdAt: "desc" },
-    });
+    const rawProjects = await fetchProjects();
 
     if (rawProjects && rawProjects.length > 0) {
       projects = rawProjects.map((p) => ({

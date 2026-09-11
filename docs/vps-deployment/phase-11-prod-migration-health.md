@@ -41,7 +41,7 @@ Tài liệu này hướng dẫn quy trình áp dụng Migration an toàn trên m
 ### 4.1. `app/api/health/route.ts`
 ```typescript
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,38 +50,45 @@ export async function GET() {
   let dbStatus = 'disconnected';
   let dbLatencyMs = -1;
 
-  try {
-    // Thực hiện truy vấn nhẹ nhất SELECT 1 để kiểm tra kết nối tới Postgres
-    const dbStart = Date.now();
-    await prisma.$queryRaw`SELECT 1`;
-    dbLatencyMs = Date.now() - dbStart;
-    dbStatus = 'healthy';
-  } catch (error) {
-    console.error('Healthcheck DB Ping Failed:', error);
-    dbStatus = 'unhealthy';
+  if (isSupabaseConfigured) {
+    try {
+      const dbStart = Date.now();
+      const { error } = await supabase.from('projects').select('id').limit(1);
+      if (!error) {
+        dbLatencyMs = Date.now() - dbStart;
+        dbStatus = 'healthy';
+      } else {
+        dbStatus = 'unhealthy';
+      }
+    } catch {
+      dbStatus = 'unhealthy';
+    }
+  } else {
+    dbStatus = 'not_configured';
   }
 
-  const isHealthy = dbStatus === 'healthy';
+  const isHealthy = dbStatus === 'healthy' || dbStatus === 'not_configured';
   const totalDurationMs = Date.now() - startTime;
 
-  const payload = {
-    status: isHealthy ? 'healthy' : 'unhealthy',
-    timestamp: new Date().toISOString(),
-    uptimeSeconds: Math.floor(process.uptime()),
-    database: {
-      status: dbStatus,
-      latencyMs: dbLatencyMs,
+  return NextResponse.json(
+    {
+      status: isHealthy ? 'healthy' : 'unhealthy',
+      timestamp: new Date().toISOString(),
+      uptimeSeconds: Math.floor(process.uptime()),
+      database: {
+        provider: 'Supabase Cloud',
+        status: dbStatus,
+        latencyMs: dbLatencyMs,
+      },
+      responseTimeMs: totalDurationMs,
     },
-    responseTimeMs: totalDurationMs,
-  };
-
-  // Trả về HTTP 200 nếu khỏe mạnh, HTTP 503 nếu mất kết nối Database
-  return NextResponse.json(payload, {
-    status: isHealthy ? 200 : 503,
-    headers: {
-      'Cache-Control': 'no-store, no-cache, must-revalidate',
-    },
-  });
+    {
+      status: isHealthy ? 200 : 503,
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate',
+      },
+    }
+  );
 }
 ```
 

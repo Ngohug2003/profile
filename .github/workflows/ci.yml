@@ -32,9 +32,6 @@ jobs:
       - name: Cài đặt Dependencies
         run: npm ci
 
-      - name: Sinh mã Prisma Client
-        run: npx prisma generate
-
       - name: Kiểm tra chuẩn mã nguồn (Lint Check)
         run: npx eslint app components lib
 
@@ -46,6 +43,8 @@ jobs:
         env:
           # Biến môi trường dummy phục vụ bước compile tĩnh trên CI
           DATABASE_URL: "postgresql://dummy_user:dummy_password@localhost:5432/dummy_db?schema=public"
+          NEXT_PUBLIC_SUPABASE_URL: "https://dummy-project.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-anon-key"
           ADMIN_PASSWORD: "ci_test_password"
           SESSION_SECRET: "ci_dummy_session_secret_32_characters_long"
           NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
