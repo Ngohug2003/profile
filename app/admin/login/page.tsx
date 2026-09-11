@@ -3,9 +3,10 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Lock, ArrowRight, ShieldCheck, ArrowLeft, Terminal, AlertCircle } from 'lucide-react';
+import { Lock, ArrowRight, ShieldCheck, ArrowLeft, Terminal, AlertCircle, Mail } from 'lucide-react';
 
 export default function AdminLoginPage() {
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -20,12 +21,12 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || 'Mật khẩu quản trị không chính xác.');
+        setError(data.error || 'Email hoặc mật khẩu không chính xác.');
       } else {
         router.push('/admin');
       }
@@ -75,7 +76,24 @@ export default function AdminLoginPage() {
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
             <label className="text-xs font-semibold text-zinc-800">
-              Mật khẩu Admin
+              Email
+            </label>
+            <div className="relative">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="admin@example.com"
+                className="w-full pl-10 pr-4 py-3 text-sm bg-zinc-50/50 border border-zinc-200 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all text-zinc-900"
+              />
+              <Mail className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-zinc-800">
+              Mật khẩu
             </label>
             <div className="relative">
               <input
@@ -102,7 +120,7 @@ export default function AdminLoginPage() {
 
         <div className="pt-4 border-t border-zinc-100 flex items-center justify-center gap-1.5 text-xs text-zinc-400">
           <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
-          <span>Phiên đăng nhập bảo mật HMAC SHA-256</span>
+          <span>Xác thực bảo mật JWT Token</span>
         </div>
       </div>
     </div>

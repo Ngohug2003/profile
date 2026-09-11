@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAuthenticated } from '@/lib/auth';
 
-// GET: Lấy danh sách yêu cầu tư vấn / liên hệ (Dành cho Admin)
+// GET: Lấy danh sách yêu cầu tư vấn / liên hệ (Admin Only - JWT Auth)
 export async function GET() {
   const authed = await isAuthenticated();
   if (!authed) {

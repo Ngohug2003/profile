@@ -26,6 +26,18 @@ model Project {
   @@map("projects")
 }
 
+// Bảng quản trị viên (đăng nhập admin dashboard)
+model User {
+  id        String   @id @default(uuid()) @db.Uuid
+  email     String   @unique @db.VarChar(255)
+  password  String   @db.VarChar(255) // bcrypt hash
+  role      String   @default("ADMIN") @db.VarChar(50)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("users")
+}
+
 // Bảng lưu trữ thông tin khách hàng gửi từ form liên hệ & modal tư vấn
 model Contact {
   id        String   @id @default(uuid()) @db.Uuid

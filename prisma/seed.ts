@@ -1,11 +1,32 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('--- Bắt đầu nạp dữ liệu mẫu cho Personal Portfolio ---');
 
-  // Xóa sạch dữ liệu cũ (môi trường local dev)
+  // =============================================
+  // 1. Seed Admin User (upsert để không bị trùng)
+  // =============================================
+  const adminEmail = 'ngoviethung0911@gmail.com';
+  const adminPassword = 'Anhhung999@';
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
+
+  const adminUser = await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: { password: hashedPassword },
+    create: {
+      email: adminEmail,
+      password: hashedPassword,
+      role: 'ADMIN',
+    },
+  });
+  console.log(`✅ Admin user: ${adminUser.email} (Role: ${adminUser.role})`);
+
+  // =============================================
+  // 2. Seed Sample Projects
+  // =============================================
   await prisma.project.deleteMany({});
 
   const sampleProjects = [
