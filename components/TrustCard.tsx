@@ -5,8 +5,8 @@ interface TrustCardProps {
   icon: LucideIcon;
   title: string;
   subtitle: string;
-  iconColorClass: string;
-  iconBgClass: string;
+  iconColorClass?: string;
+  iconBgClass?: string;
 }
 
 export default function TrustCard({
@@ -15,15 +15,15 @@ export default function TrustCard({
   subtitle,
 }: TrustCardProps) {
   return (
-    <div className="flex items-center gap-3 bg-white border border-[#e0e0e0] rounded-sm p-3.5 transition-colors duration-250 hover:border-[#0066cc] w-full min-w-0">
-      <div className="p-2 rounded-sm bg-[#f5f5f7] text-[#0066cc] border border-[#e0e0e0] flex items-center justify-center shrink-0">
-        <Icon className="w-4.5 h-4.5" />
+    <div className="flex items-center gap-3 bg-white border border-zinc-200/80 rounded-xl p-3.5 transition-all duration-200 hover:border-zinc-300 hover:shadow-2xs w-full min-w-0">
+      <div className="p-2.5 rounded-lg bg-blue-50 text-blue-600 border border-blue-100 flex items-center justify-center shrink-0">
+        <Icon className="w-4 h-4" />
       </div>
       <div className="min-w-0">
-        <h4 className="typography-caption-strong text-[#1d1d1f] leading-tight">
+        <h4 className="text-xs sm:text-sm font-semibold text-zinc-900 leading-tight">
           {title}
         </h4>
-        <p className="typography-micro-legal text-[#7a7a7a] mt-0.5 leading-tight break-words">
+        <p className="text-[11px] sm:text-xs text-zinc-500 mt-0.5 leading-tight truncate">
           {subtitle}
         </p>
       </div>

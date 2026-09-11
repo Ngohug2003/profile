@@ -14,4 +14,6 @@ const nextConfig: NextConfig = {
   },
 };
 
+// Tự động reload Prisma Client khi cấu hình thay đổi
 export default nextConfig;
+

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Zap, Smartphone, Search, LineChart, TrendingDown, Smile } from "lucide-react";
+import { Zap, Smartphone, Search, LineChart, TrendingDown, Smile, AlertCircle, CheckCircle2 } from "lucide-react";
 import { appContent } from "@/constants/content";
 
 const iconMap = {
@@ -17,25 +17,21 @@ export default function ProblemsSection() {
   const { badge, title, description, problems } = appContent.problems;
 
   return (
-    <section id="gioi-thieu" className="relative w-full py-section bg-canvas-parchment text-[#1d1d1f] select-none rounded-none border-0 overflow-hidden">
-      
-      <div className="w-full max-w-[1400px] mx-auto px-6 z-10">
+    <section className="relative w-full py-16 md:py-24 bg-[#f8f9fa] border-y border-zinc-200/60 overflow-hidden">
+      <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6">
         
         {/* Section Header */}
-        <div className="max-w-[720px] mb-12 space-y-4">
-          {/* Pill Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-[#0066cc] bg-white rounded-full border border-[#e0e0e0]">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#0066cc]" />
+        <div className="max-w-[680px] mb-12 space-y-3.5">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-rose-600 bg-rose-50 rounded-full border border-rose-100">
+            <AlertCircle className="w-3.5 h-3.5" />
             <span>{badge}</span>
           </div>
 
-          {/* Heading */}
-          <h2 className="typography-display-lg text-[#1d1d1f]">
+          <h2 className="typography-display-lg text-zinc-950">
             {title}
           </h2>
 
-          {/* Description */}
-          <p className="typography-body text-[#7a7a7a]">
+          <p className="typography-body text-zinc-600">
             {description}
           </p>
         </div>
@@ -47,21 +43,26 @@ export default function ProblemsSection() {
             return (
               <div 
                 key={index}
-                className="bg-white border border-[#e0e0e0] rounded-lg p-6 space-y-4 hover:border-[#0066cc] transition-colors duration-300 apple-active-scale"
+                className="bg-white border border-zinc-200/90 rounded-2xl p-6 sm:p-7 space-y-4 hover:border-zinc-300 hover:shadow-card card-hover-lift"
               >
-                {/* Icon box (flat parchment with blue tint) */}
-                <div className="p-3 bg-[#f5f5f7] border border-[#e0e0e0] text-[#0066cc] rounded-lg w-fit">
-                  <IconComponent className="w-6 h-6" />
+                {/* Icon box with subtle background */}
+                <div className="p-3 bg-zinc-50 border border-zinc-100 text-zinc-800 rounded-xl w-fit flex items-center justify-center">
+                  <IconComponent className="w-5 h-5 text-rose-500" />
                 </div>
                 
                 {/* Content */}
                 <div className="space-y-2">
-                  <h3 className="typography-caption-strong text-[#1d1d1f]">
+                  <h3 className="text-base font-semibold text-zinc-950 tracking-tight">
                     {item.title}
                   </h3>
-                  <p className="typography-caption text-[#7a7a7a] leading-relaxed">
+                  <p className="text-sm text-zinc-600 leading-relaxed">
                     {item.desc}
                   </p>
+                </div>
+
+                <div className="pt-3 border-t border-zinc-100 flex items-center gap-2 text-xs font-medium text-emerald-600">
+                  <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                  <span>Được giải quyết triệt để tại Hưng Dev Studio</span>
                 </div>
               </div>
             );

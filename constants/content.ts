@@ -195,6 +195,24 @@ export const appContent: AppContent = {
         ctaText: "Xem dự án",
         techStack: ["React", "Framer Motion", "Tailwind CSS"],
       },
+      {
+        title: "HƯNG DEV STUDIO",
+        category: "Web Doanh Nghiệp",
+        desc: "Hệ thống website thương hiệu và nền tảng dịch vụ tối ưu SEO, tự động hóa quản trị và vận hành trên VPS.",
+        imageAlt: "Hung Dev Studio preview",
+        features: ["Tự động triển khai CI/CD", "Chứng chỉ SSL A+", "Sao lưu đám mây định kỳ"],
+        ctaText: "Xem dự án",
+        techStack: ["Next.js 16", "TypeScript", "Docker"],
+      },
+      {
+        title: "NEXUS ARCHITECTURE",
+        category: "Web Doanh Nghiệp",
+        desc: "Trang giới thiệu studio kiến trúc cao cấp phong cách tối giản Bắc Âu, bố cục thoáng đãng và tối ưu tốc độ 100/100.",
+        imageAlt: "Nexus Architecture preview",
+        features: ["Phong cách tối giản Bắc Âu", "Tải trang dưới 0.6s", "Chuẩn SEO Google 100%"],
+        ctaText: "Xem dự án",
+        techStack: ["Next.js", "Tailwind CSS", "Motion"],
+      },
     ],
     bannerTitle: "Sẵn sàng sở hữu website chuẩn SEO của riêng bạn?",
     bannerDesc: "Hãy để tôi giúp bạn xây dựng một trang web hiện đại, tải nhanh và mang lại hiệu quả kinh doanh thực tế.",
@@ -202,7 +220,7 @@ export const appContent: AppContent = {
   },
   faq: {
     badge: "FAQ",
-    title: "Câu hỏi thường gặp22222",
+    title: "Câu hỏi thường gặp",
     description: "Giải đáp những băn khoăn phổ biến giúp bạn dễ dàng chuẩn bị và phối hợp triển khai dự án website hiệu quả.",
     faqItems: [
       {

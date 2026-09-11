@@ -23,6 +23,8 @@ const eslintConfig = defineConfig([
     "public/**",
     "docs/**",
     "scripts/**",
+    ".agents/**",
+    "design-system/**",
     "node_modules/**",
   ]),
 ]);

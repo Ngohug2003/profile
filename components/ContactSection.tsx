@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { Mail, Phone, Facebook, MessageSquare, Send, CheckCircle2, Sparkles } from "lucide-react";
+import { Mail, Phone, Facebook, Send, CheckCircle2, Sparkles, Copy, Check } from "lucide-react";
 import { appContent } from "@/constants/content";
+import CustomSelect from "./CustomSelect";
 
 const iconMap = {
   phone: Phone,
@@ -20,15 +21,29 @@ export default function ContactSection() {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [copiedPhone, setCopiedPhone] = useState(false);
 
   const { badge, title, description, servicesList, channels, formTitle, formSubtitle, formSubmitText } = appContent.contact;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Không thể gửi yêu cầu. Vui lòng thử lại sau.");
+      }
+
       setIsSubmitted(true);
       setFormData({
         fullName: "",
@@ -37,45 +52,57 @@ export default function ContactSection() {
         service: "Tư vấn landing page",
         message: "",
       });
-    }, 1500);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "Đã xảy ra lỗi khi lưu thông tin.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopyPhone = (phone: string) => {
+    navigator.clipboard.writeText(phone);
+    setCopiedPhone(true);
+    setTimeout(() => setCopiedPhone(false), 2000);
   };
 
   return (
-    <section id="lien-he" className="relative w-full py-section bg-white text-[#1d1d1f] select-none rounded-none border-0 overflow-hidden">
+    <section id="lien-he" className="relative w-full py-16 md:py-24 bg-white text-zinc-900 overflow-hidden">
       
-      <div className="w-full max-w-[1400px] mx-auto px-6 z-10 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
+      <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 z-10 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          {/* Left Column: Info & Trust */}
-          <div className="lg:col-span-5 space-y-8 lg:sticky lg:top-28">
-            <div className="space-y-4">
-              <div className="inline-flex items-center gap-2 px-3 py-1 text-xs font-semibold text-[#0066cc] bg-[#f5f5f7] rounded-full border border-[#e0e0e0]">
+          {/* Left Column: Info & Direct Channels (Spans 5 columns) */}
+          <div className="lg:col-span-5 space-y-6">
+            <div className="space-y-3.5">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{badge}</span>
               </div>
-              <h2 className="typography-display-lg text-[#1d1d1f]">
+              
+              <h2 className="typography-display-lg text-zinc-950">
                 {title}
               </h2>
-              <p className="typography-body text-[#7a7a7a]">
+              
+              <p className="typography-body text-zinc-600">
                 {description}
               </p>
             </div>
 
-            {/* Service Cards */}
-            <div className="space-y-4 pt-2">
+            {/* Service Highlights */}
+            <div className="space-y-3 pt-2">
               {servicesList.map((item, index) => (
                 <div 
                   key={index}
-                  className="p-5 rounded-lg bg-[#f5f5f7] border border-[#e0e0e0] flex items-start gap-4 hover:border-[#0066cc] transition-colors duration-300"
+                  className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex items-start gap-3.5"
                 >
-                  <div className="p-2 rounded bg-white text-[#0066cc] border border-[#e0e0e0] shrink-0">
+                  <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 shrink-0 mt-0.5">
                     <CheckCircle2 className="w-4 h-4" />
                   </div>
                   <div>
-                    <h4 className="typography-caption-strong text-[#1d1d1f]">
+                    <h4 className="text-sm font-semibold text-zinc-900">
                       {item.title}
                     </h4>
-                    <p className="typography-caption text-[#7a7a7a] mt-1.5 leading-relaxed">
+                    <p className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
                       {item.desc}
                     </p>
                   </div>
@@ -83,10 +110,13 @@ export default function ContactSection() {
               ))}
             </div>
 
-            {/* Contact Methods */}
-            <div className="pt-6 border-t border-[#e0e0e0] space-y-4">
-              <p className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider">Kênh liên lạc nhanh</p>
-              <div className="flex flex-wrap gap-3">
+            {/* Fast Communication Channels */}
+            <div className="pt-6 border-t border-zinc-200/80 space-y-3">
+              <span className="text-xs uppercase tracking-wider text-zinc-500 font-semibold block">
+                Kênh liên lạc trực tiếp
+              </span>
+              
+              <div className="flex flex-wrap gap-2.5">
                 {channels.map((channel, index) => {
                   const IconComponent = iconMap[channel.type];
                   return (
@@ -95,156 +125,166 @@ export default function ContactSection() {
                       href={channel.href}
                       target={channel.type === "facebook" ? "_blank" : undefined}
                       rel={channel.type === "facebook" ? "noreferrer" : undefined}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-[#e0e0e0] text-xs text-[#1d1d1f] hover:border-[#0066cc] hover:text-[#0066cc] transition-all duration-200 apple-active-scale cursor-pointer"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-zinc-200 text-xs font-medium text-zinc-800 hover:border-blue-500 hover:text-blue-600 transition-all duration-200 shadow-2xs btn-press cursor-pointer"
                     >
-                      <IconComponent className="w-3.5 h-3.5 text-[#0066cc]" />
+                      <IconComponent className="w-3.5 h-3.5 text-blue-600" />
                       <span>{channel.label}</span>
                     </a>
                   );
                 })}
+
+                <button
+                  onClick={() => handleCopyPhone("0333246944")}
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-xs font-medium text-zinc-700 transition-colors cursor-pointer"
+                  title="Sao chép số điện thoại"
+                >
+                  {copiedPhone ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-600" />
+                      <span className="text-emerald-600">Đã sao chép</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5 text-zinc-500" />
+                      <span>Copy SĐT</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
+
           </div>
 
-          {/* Right Column: Form inside clean container */}
+          {/* Right Column: Contact & Brief Form (Spans 7 columns) */}
           <div className="lg:col-span-7">
-            <div className="relative rounded-lg bg-[#f5f5f7] border border-[#e0e0e0] p-6 sm:p-8">
+            <div className="bg-white border border-zinc-200/90 rounded-3xl p-6 sm:p-10 shadow-card space-y-6">
               
+              <div>
+                <h3 className="text-xl font-bold text-zinc-950 font-display">
+                  {formTitle}
+                </h3>
+                <p className="text-xs sm:text-sm text-zinc-500 mt-1">
+                  {formSubtitle}
+                </p>
+              </div>
+
               {isSubmitted ? (
-                <div className="py-12 px-4 text-center space-y-6">
-                  <div className="mx-auto w-12 h-12 rounded-full bg-white border border-[#e0e0e0] text-emerald-600 flex items-center justify-center">
+                <div className="p-8 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3 animate-in fade-in duration-300">
+                  <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto">
                     <CheckCircle2 className="w-6 h-6" />
                   </div>
-                  <div className="space-y-2">
-                    <h3 className="typography-body-strong text-[#1d1d1f]">Gửi yêu cầu thành công!</h3>
-                    <p className="typography-caption text-[#7a7a7a] max-w-[400px] mx-auto leading-relaxed">
-                      Cảm ơn bạn đã quan tâm. Tôi sẽ xem xét thông tin chi tiết và liên hệ lại tư vấn cho bạn trong thời gian sớm nhất.
-                    </p>
-                  </div>
+                  <h4 className="text-lg font-bold text-emerald-900">
+                    Gửi yêu cầu thành công!
+                  </h4>
+                  <p className="text-xs sm:text-sm text-emerald-700 max-w-[400px] mx-auto">
+                    Cảm ơn bạn đã quan tâm. Hưng sẽ liên hệ lại qua Zalo/Số điện thoại của bạn trong vòng 15 - 30 phút.
+                  </p>
                   <button
                     onClick={() => setIsSubmitted(false)}
-                    className="px-5 py-2 text-xs font-normal rounded-full bg-white border border-[#e0e0e0] hover:bg-[#f5f5f7] text-[#1d1d1f] transition-colors cursor-pointer"
+                    className="mt-2 text-xs font-semibold text-emerald-800 hover:underline cursor-pointer"
                   >
-                    Gửi yêu cầu mới
+                    Gửi thêm yêu cầu khác
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2 pb-3 border-b border-[#e0e0e0]">
-                    <h3 className="typography-body-strong text-[#1d1d1f] flex items-center gap-2">
-                      <MessageSquare className="w-5 h-5 text-[#0066cc]" />
-                      <span>{formTitle}</span>
-                    </h3>
-                  </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  {errorMessage && (
+                    <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-medium text-rose-700 animate-in fade-in duration-200">
+                      {errorMessage}
+                    </div>
+                  )}
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {/* Name */}
-                    <div className="space-y-2">
-                      <label htmlFor="fullName" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                        Họ và tên <span className="text-red-500">*</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Họ & Tên <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="text"
-                        id="fullName"
                         required
+                        placeholder="Nguyễn Văn A"
                         value={formData.fullName}
                         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                        placeholder="Nguyễn Văn A"
-                        className="w-full px-5 py-3 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/50 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption"
+                        className="w-full px-4 py-3 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-zinc-50/50"
                       />
                     </div>
 
-                    {/* Phone */}
-                    <div className="space-y-2">
-                      <label htmlFor="phone" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                        Số điện thoại <span className="text-red-500">*</span>
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Số điện thoại / Zalo <span className="text-rose-500">*</span>
                       </label>
                       <input
                         type="tel"
-                        id="phone"
                         required
+                        placeholder="0987 654 321"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        placeholder="0987 654 321"
-                        className="w-full px-5 py-3 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/50 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption"
+                        className="w-full px-4 py-3 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-zinc-50/50"
                       />
                     </div>
                   </div>
 
-                  {/* Email */}
-                  <div className="space-y-2">
-                    <label htmlFor="email" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                      Địa chỉ Email
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      value={formData.email}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="hello@company.com"
-                      className="w-full px-5 py-3 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/50 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption"
-                    />
-                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Địa chỉ Email <span className="text-zinc-400 font-normal">(tuỳ chọn)</span>
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="email@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-4 py-3 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-zinc-50/50"
+                      />
+                    </div>
 
-                  {/* Service Dropdown */}
-                  <div className="space-y-2">
-                    <label htmlFor="service" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                      Dịch vụ quan tâm <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <select
-                        id="service"
-                        required
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Dịch vụ mong muốn
+                      </label>
+                      <CustomSelect
                         value={formData.service}
-                        onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                        className="w-full px-5 py-3 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption appearance-none cursor-pointer"
-                      >
-                        <option value="Tư vấn landing page">Thiết kế Landing Page</option>
-                        <option value="Website bán hàng">Website Bán Hàng</option>
-                        <option value="SEO cơ bản">Tối ưu cấu trúc SEO</option>
-                        <option value="Khác">Yêu cầu khác...</option>
-                      </select>
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#7a7a7a]">
-                        <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                          <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                        </svg>
-                      </div>
+                        onChange={(val) => setFormData({ ...formData, service: val })}
+                        options={[
+                          { value: "Tư vấn landing page", label: "Landing Page Chuyển Đổi Cao" },
+                          { value: "Thiết kế website doanh nghiệp", label: "Website Doanh Nghiệp / Bán Hàng" },
+                          { value: "Tối ưu SEO & Tốc độ", label: "Tối Ưu SEO & Tốc Độ PageSpeed" },
+                          { value: "Dự án khác", label: "Tư Vấn Thiết Kế Theo Yêu Cầu" },
+                        ]}
+                      />
                     </div>
                   </div>
 
-                  {/* Message */}
-                  <div className="space-y-2">
-                    <label htmlFor="message" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                      Nội dung cần tư vấn <span className="text-red-500">*</span>
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-semibold text-zinc-800">
+                      Mô tả sơ lược yêu cầu
                     </label>
                     <textarea
-                      id="message"
-                      required
                       rows={4}
+                      placeholder="Chia sẻ về lĩnh vực kinh doanh, phong cách yêu thích hoặc tính năng cần có..."
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      placeholder={formSubtitle}
-                      className="w-full px-5 py-3 rounded-lg bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/50 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption resize-none"
+                      className="w-full px-4 py-3 rounded-xl border border-zinc-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all bg-zinc-50/50 resize-none"
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={isLoading}
-                    className="w-full py-3.5 px-6 text-sm font-normal text-white bg-[#0066cc] hover:bg-[#0071e3] disabled:opacity-50 rounded-full transition-all duration-200 apple-active-scale flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-full text-white bg-zinc-950 hover:bg-zinc-800 transition-all text-sm font-semibold shadow-xs cursor-pointer btn-press disabled:opacity-60"
                   >
                     {isLoading ? (
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                      <span>Đang gửi thông tin...</span>
                     ) : (
                       <>
-                        <Send className="w-4 h-4" />
                         <span>{formSubmitText}</span>
+                        <Send className="w-4 h-4" />
                       </>
                     )}
                   </button>
                 </form>
               )}
+
             </div>
           </div>
 
