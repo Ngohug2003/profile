@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 
 const inter = Inter({
@@ -69,7 +70,10 @@ export default function RootLayout({
       lang="vi"
       className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="min-h-full flex flex-col font-sans bg-[#fafafa] text-[#09090b] selection:bg-blue-100 selection:text-blue-900">{children}</body>
+      <body className="min-h-full flex flex-col font-sans bg-[#fafafa] text-[#09090b] selection:bg-blue-100 selection:text-blue-900">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
