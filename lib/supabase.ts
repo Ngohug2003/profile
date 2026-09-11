@@ -134,6 +134,20 @@ export async function submitContactLead(contact: {
     if (error) {
       return { success: false, error: error.message };
     }
+
+    // Kích hoạt thông báo Telegram ngầm qua API an toàn
+    fetch('/api/notify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fullName: contact.fullName,
+        phone: contact.phone,
+        email: contact.email,
+        service: contact.service,
+        message: contact.message,
+      }),
+    }).catch((notifyErr) => console.warn('[Telegram Notify Trigger Failed]:', notifyErr));
+
     return { success: true, data: data as ContactRow };
   } catch (err) {
     return { success: false, error: err instanceof Error ? err.message : String(err) };

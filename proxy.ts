@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { COOKIE_NAME, verifyJWT } from "@/lib/jwt";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const url = request.nextUrl;
   const host = request.headers.get("host") || "";
 
@@ -49,10 +49,13 @@ export async function middleware(request: NextRequest) {
   return NextResponse.next();
 }
 
+// Export alias middleware & default để tương thích tối đa
+export { proxy as middleware };
+export default proxy;
+
 export const config = {
   matcher: [
     // Loại trừ các file tĩnh, ảnh, thư mục uploads và api route để tối ưu hiệu năng
     "/((?!api|_next/static|_next/image|favicon.ico|uploads|.*\\..*).*)",
   ],
 };
-
