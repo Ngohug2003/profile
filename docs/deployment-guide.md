@@ -4,50 +4,56 @@ Tài liệu này đóng vai trò là kim chỉ nam toàn diện, hướng dẫn 
 
 ---
 
-## 1. Kiến Trúc Mục Tiêu
+## 1. Kiến Trúc Mục Tiêu (VPS Siêu Nhẹ + Supabase Cloud)
 
 ```
-+-------------------------------------------------------------------------+
-|                              LOCAL MACHINE                              |
-|  Next.js 15 (Dev/Standalone) + Prisma Client + Docker Postgres (Local)   |
-+------------------------------------+------------------------------------+
-                                     |
-                                 git push
-                                     v
-+-------------------------------------------------------------------------+
-|                             GITHUB REPO                                 |
-|  Main branch triggers GitHub Actions Workflow (.github/workflows)        |
-+------------------------------------+------------------------------------+
-                                     |
-                                     +---------------------------+
-                                     |                           |
-                                     v (Docker Build & Tag SHA)  v (SSH Deploy)
-+-----------------------------------------+         +-------------------------------+
-|      GITHUB CONTAINER REGISTRY (GHCR)   |         |           VPS UBUNTU          |
-|  ghcr.io/<owner>/portfolio:<sha>        |         |  scripts/deploy.sh            |
-|  ghcr.io/<owner>/portfolio:latest       |         |  docker compose pull + up -d  |
-+--------------------+--------------------+         +---------------+---------------+
-                     |                                              |
-                     +----------------- docker pull <---------------+
-                                                                    v
 +-------------------------------------------------------------------------------+
-|                             PRODUCTION VPS STACK                              |
-|                                                                               |
-|   Internet (Port 80/443)                                                      |
-|         |                                                                     |
-|         v                                                                     |
-|     [ Nginx Reverse Proxy ] + [ Let's Encrypt SSL (Certbot) ]                 |
-|         |                                                                     |
-|         +---> Proxy pass (http://127.0.0.1:3000)                              |
-|         |           |                                                         |
-|         |           v                                                         |
-|         |   [ Container: nextjs-app (Non-root user, Next.js 15 standalone) ]  |
-|         |           | (Internal Docker Network)                               |
-|         |           v                                                         |
-|         |   [ Container: postgres-db (PostgreSQL 16 Alpine, No public port) ] |
-|         |                                                                     |
-|         +---> Static Direct Serve (/uploads/ -> Named Volume: uploads_data)   |
+|                                LOCAL MACHINE                                  |
+|  Next.js 16 (Server Components) + Supabase Client SDK + Local Dev             |
++---------------------------------------+---------------------------------------+
+                                        |
+                                    git push
+                                        v
 +-------------------------------------------------------------------------------+
+|                                GITHUB REPO                                    |
+|  Main branch triggers GitHub Actions Workflow (.github/workflows)             |
++---------------------------------------+---------------------------------------+
+                                        |
+                                        +-----------------------------+
+                                        |                             |
+                                        v (Docker Build & Push GHCR)  v (SSH Auto Deploy)
++--------------------------------------------+         +-------------------------------+
+|        GITHUB CONTAINER REGISTRY (GHCR)    |         |           VPS UBUNTU          |
+|  ghcr.io/<owner>/portfolio-app:<sha>       |         |  scripts/deploy.sh            |
+|  ghcr.io/<owner>/portfolio-app:latest      |         |  docker compose pull + up -d  |
++--------------------+-----------------------+         +---------------+---------------+
+                     |                                                 |
+                     +------------------- docker pull <----------------+
+                                                                       v
++-----------------------------------------------------------------------------------------------+
+|                                      PRODUCTION VPS STACK                                     |
+|                                                                                               |
+|   Internet (Port 80/443)                                                                      |
+|         |                                                                                     |
+|         v                                                                                     |
+|     [ Nginx Reverse Proxy ] + [ Let's Encrypt SSL (Certbot) ]                                 |
+|         |                                                                                     |
+|         +---> Proxy pass (http://127.0.0.1:3000)                                              |
+|                     |                                                                         |
+|                     v                                                                         |
+|             [ Container: nextjs-app (Next.js 16 Standalone, RAM < 90MB) ]                     |
++-------------------------------------+---------------------------------------------------------+
+                                      |
+                         (Kết nối HTTPS / WSS an toàn)
+                                      v
++-----------------------------------------------------------------------------------------------+
+|                                    SUPABASE CLOUD (BaaS)                                      |
+|                                                                                               |
+|  * Managed PostgreSQL Database (Singapore Region - AWS ap-southeast-1, latency <15ms)         |
+|  * Row Level Security (RLS) bảo vệ truy cập dữ liệu trực tiếp từ client                        |
+|  * Storage CDN Toàn cầu (Bucket `project-covers`, tự động resize & WebP compression)          |
+|  * Tự động Point-in-Time Recovery & Daily Backup từ Supabase Cloud                            |
++-----------------------------------------------------------------------------------------------+
 ```
 
 ---
@@ -56,17 +62,17 @@ Tài liệu này đóng vai trò là kim chỉ nam toàn diện, hướng dẫn 
 
 | Thành phần | Công nghệ / Lựa chọn | Lý do & Quy định |
 | :--- | :--- | :--- |
-| **Framework** | Next.js 16.3.4 (App Router) | Tối ưu SSR/SSG, hỗ trợ Standalone output cho Docker |
-| **Ngôn ngữ** | TypeScript | An toàn kiểu dữ liệu, bắt lỗi lúc compile |
-| **Runtime** | Node.js 20 LTS | Phiên bản ổn định dài hạn, tương thích cao với Alpine |
-| **Package Manager**| npm | Mặc định, đồng nhất môi trường CI/CD |
-| **Database** | PostgreSQL 16 (Docker) | Chạy trong container, cô lập mạng nội bộ |
-| **ORM** | Prisma | Quản lý schema, type-safe query, migration tự động |
-| **Authentication** | Session Cookie (HttpOnly) | Đơn giản, 1 admin duy nhất xác thực bằng `ADMIN_PASSWORD` |
-| **Image Storage** | Docker Named Volume | Lưu trữ bền vững tại `/uploads`, tách biệt với filesystem app |
-| **Container Registry**| GitHub Packages (GHCR) | Tích hợp sâu với GitHub Actions, miễn phí cho public/private |
-| **Web Server** | Nginx Reverse Proxy | Terminate SSL, cache static file, chuyển tiếp port 3000 |
-| **SSL / HTTPS** | Let's Encrypt (Certbot) | Cấp chứng chỉ tự động, auto-renewal |
+| **Framework** | Next.js 16.2.9 (App Router) | Tối ưu RSC, streaming HTML, standalone output cho Docker |
+| **Ngôn ngữ** | TypeScript | An toàn kiểu dữ liệu, giảm thiểu lỗi runtime |
+| **Runtime** | Node.js 20 LTS | Phiên bản LTS ổn định, tối ưu kích thước image Alpine |
+| **Styling** | Tailwind CSS v4 | Hiệu năng CSS compilation cao, bundle cực nhỏ |
+| **Database & API** | Supabase Cloud (PostgreSQL 16) | Nền tảng BaaS đám mây, độ trễ <15ms, không tốn RAM trên VPS |
+| **Security** | Row Level Security (RLS) | Phân quyền bảng trực tiếp tại database |
+| **Authentication** | JWT HttpOnly Cookie | Quản lý phiên admin bảo mật, không lộ token ra Client |
+| **Image Storage** | Supabase Storage CDN | Lưu trữ ảnh bìa dự án trên CDN toàn cầu, không tốn ổ cứng VPS |
+| **Container Registry**| GitHub Packages (GHCR) | Tích hợp sâu với GitHub Actions, bảo mật, tải siêu tốc |
+| **Web Server** | Nginx Reverse Proxy | Terminate SSL, nén gzip/brotli, bảo vệ port 3000 |
+| **SSL / HTTPS** | Let's Encrypt (Certbot) | Cấp chứng chỉ HTTPS tự động, gia hạn tự động |
 
 ---
 

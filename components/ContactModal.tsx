@@ -56,16 +56,11 @@ export default function ContactModal() {
     setErrorMessage(null);
 
     try {
-      const res = await fetch("/api/contacts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const { submitContactLead } = await import("@/lib/supabase");
+      const result = await submitContactLead(formData);
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.error || "Không thể gửi yêu cầu. Vui lòng thử lại sau.");
+      if (!result.success) {
+        throw new Error(result.error || "Không thể gửi yêu cầu. Vui lòng thử lại sau.");
       }
 
       setIsSubmitted(true);

@@ -10,7 +10,7 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import ContactModal from "@/components/ContactModal";
 import ScrollReveal from "@/components/ScrollReveal";
-import { prisma } from "@/lib/prisma";
+import { fetchProjects } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
 
@@ -18,22 +18,21 @@ export default async function Home() {
   let initialProjects: DbProject[] = [];
 
   try {
-    const rawProjects = await prisma.project.findMany({
-      orderBy: { createdAt: "desc" },
-    });
-    initialProjects = rawProjects.map((p) => ({
-      id: p.id,
-      name: p.name,
-      category: p.category,
-      description: p.description,
-      techStack: p.techStack,
-      features: p.features,
-      imageUrl: p.imageUrl,
-      domain: p.domain,
-    }));
-  } catch {
-    // Nếu cơ sở dữ liệu chưa sẵn sàng hoặc kết nối chậm, dùng dữ liệu mẫu ngay lập tức không để user đợi
-    console.warn("DB chưa sẵn sàng hoặc phản hồi chậm. Dùng dữ liệu mẫu mặc định để trang tải siêu tốc.");
+    const rawProjects = await fetchProjects();
+    if (rawProjects && rawProjects.length > 0) {
+      initialProjects = rawProjects.map((p) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        description: p.description,
+        techStack: p.techStack || [],
+        features: p.features || [],
+        imageUrl: p.imageUrl,
+        domain: p.domain,
+      }));
+    }
+  } catch (err) {
+    console.warn("Lỗi khi tải dự án từ Supabase, sử dụng dữ liệu mặc định:", err);
   }
 
   return (
