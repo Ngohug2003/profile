@@ -5,9 +5,14 @@ import { isAuthenticated } from '@/lib/auth';
 // GET: Lấy danh sách toàn bộ project (Public)
 export async function GET() {
   try {
-    const projects = await prisma.project.findMany({
-      orderBy: { createdAt: 'desc' },
-    });
+    const projects = await Promise.race([
+      prisma.project.findMany({
+        orderBy: { createdAt: 'desc' },
+      }),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('DB Timeout')), 1500)
+      ),
+    ]);
     return NextResponse.json(projects);
   } catch (error) {
     console.error('Error fetching projects:', error);

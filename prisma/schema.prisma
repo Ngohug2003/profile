@@ -25,3 +25,19 @@ model Project {
 
   @@map("projects")
 }
+
+// Bảng lưu trữ thông tin khách hàng gửi từ form liên hệ & modal tư vấn
+model Contact {
+  id        String   @id @default(uuid()) @db.Uuid
+  fullName  String   @db.VarChar(255)
+  phone     String   @db.VarChar(50)
+  email     String?  @db.VarChar(255)
+  service   String   @default("Tư vấn landing page") @db.VarChar(100)
+  message   String?  @db.Text
+  status    String   @default("NEW") @db.VarChar(50) // NEW (Mới), CONTACTED (Đã liên hệ), COMPLETED (Hoàn thành)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
+
+  @@map("contacts")
+}
+

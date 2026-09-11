@@ -2,67 +2,71 @@
 
 import React from "react";
 import Image from "next/image";
-import { Code, Cpu, ShieldAlert, Laptop, Coffee } from "lucide-react";
+import { Code, Cpu, ShieldCheck, Sparkles, MapPin, CheckCircle2, Award } from "lucide-react";
 import { appContent } from "@/constants/content";
 
 const iconMap = {
   Code,
   Cpu,
-  ShieldAlert,
+  ShieldAlert: ShieldCheck,
 };
 
 export default function AboutSection() {
   const { badge, title, description, bioText1, bioText2, focusCards } = appContent.about;
 
   return (
-    <section id="gioi-thieu" className="relative w-full py-section bg-surface-tile-1 text-white select-none rounded-none border-0 overflow-hidden">
+    <section id="gioi-thieu" className="relative w-full py-16 md:py-24 bg-zinc-950 text-white overflow-hidden">
       
-      <div className="w-full max-w-[1400px] mx-auto px-6 z-10 relative">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+      {/* Background ambient lighting */}
+      <div className="absolute top-0 right-1/4 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 z-10 relative">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           
           {/* Left Column: Heading & Paragraphs (Spans 6 columns) */}
           <div className="lg:col-span-6 space-y-6">
             
             {/* Pill Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-[#2997ff] bg-white/5 rounded-full border border-white/5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#2997ff]" />
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-400 bg-white/5 rounded-full border border-white/10">
+              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
               <span>{badge}</span>
             </div>
 
             {/* Title */}
-            <h2 className="typography-display-lg text-white">
+            <h2 className="typography-display-lg text-white font-display">
               {title}
             </h2>
 
             {/* Description Paragraphs */}
-            <div className="space-y-4 text-xs sm:text-sm text-[#cccccc] font-normal leading-relaxed">
-              <p className="typography-body">
+            <div className="space-y-4 text-sm sm:text-base text-zinc-400 font-normal leading-relaxed">
+              <p className="text-zinc-300">
                 {description}
               </p>
-              <p className="typography-caption">
+              <p className="text-xs sm:text-sm text-zinc-400">
                 {bioText1}
               </p>
-              <p className="typography-caption">
+              <p className="text-xs sm:text-sm text-zinc-400">
                 {bioText2}
               </p>
             </div>
 
             {/* Focus Cards List */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-6 border-t border-white/5">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-white/10">
               {focusCards.map((item, index) => {
-                const IconComponent = iconMap[item.iconName];
+                const IconComponent = iconMap[item.iconName as keyof typeof iconMap] || ShieldCheck;
                 return (
                   <div 
                     key={index}
-                    className="p-4 bg-surface-tile-2 border border-white/5 rounded-lg space-y-2.5 hover:border-[#2997ff]/60 transition-colors"
+                    className="p-4 bg-zinc-900/80 border border-white/10 rounded-xl space-y-2 hover:border-blue-500/50 transition-all duration-200"
                   >
-                    <div className="p-2 bg-[#1d1d1f] text-[#2997ff] border border-white/5 rounded-md w-fit">
-                      <IconComponent className="w-4.5 h-4.5" />
+                    <div className="p-2 bg-white/5 text-blue-400 border border-white/10 rounded-lg w-fit">
+                      <IconComponent className="w-4 h-4" />
                     </div>
-                    <h4 className="typography-caption-strong text-white">
+                    <h4 className="text-xs font-semibold text-zinc-100">
                       {item.title}
                     </h4>
-                    <p className="typography-micro-legal text-[#cccccc]">
+                    <p className="text-[11px] text-zinc-400 leading-snug">
                       {item.desc}
                     </p>
                   </div>
@@ -72,78 +76,72 @@ export default function AboutSection() {
 
           </div>
 
-          {/* Right Column: Premium Realistic Code & Developer Desk Mockup (Spans 6 columns) */}
+          {/* Right Column: Modern Bento Visual Showcase (Spans 6 columns) */}
           <div className="lg:col-span-6 flex justify-center">
-            <div className="relative w-full max-w-[460px] h-[360px] sm:h-[420px] rounded-lg bg-surface-tile-2 border border-white/5 overflow-hidden shadow-2xl">
+            <div className="relative w-full max-w-[480px] p-6 rounded-3xl bg-zinc-900/90 border border-white/10 shadow-2xl space-y-5">
               
-              {/* Grid lines background */}
-              <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:24px_24px]" />
-
-              {/* Central avatar portrait card */}
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[200px] sm:w-[240px] aspect-[4/5] bg-[#1d1d1f] border border-white/10 rounded-lg overflow-hidden shadow-product z-20">
-                <Image
-                  src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=600"
-                  alt="Hưng Full-stack Developer portrait"
-                  fill
-                  priority
-                  sizes="(max-w-[768px]) 200px, 240px"
-                  className="object-cover"
-                />
-                <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-xs p-2 text-center border-t border-white/5">
-                  <span className="typography-micro-legal text-white font-semibold">Hưng Dev Studio</span>
+              {/* Header profile info */}
+              <div className="flex items-center gap-4 pb-5 border-b border-white/10">
+                <div className="relative w-16 h-16 rounded-2xl overflow-hidden border-2 border-blue-500/30 shrink-0">
+                  <Image
+                    src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300"
+                    alt="Ngọ Viết Hưng - Fullstack Web Developer"
+                    fill
+                    sizes="64px"
+                    className="object-cover"
+                  />
                 </div>
-              </div>
-
-              {/* Floating Code Editor Snippet (Top-Left) */}
-              <div className="absolute left-[5%] top-[8%] w-[110px] sm:w-[130px] bg-[#1c1c1e] border border-white/5 rounded-md p-2 z-35 rotate-[-3deg] hover:rotate-0 hover:scale-105 transition-all duration-300">
-                <div className="flex gap-1 mb-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500/80" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400/80" />
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/80" />
-                </div>
-                <div className="font-mono text-[5.5px] sm:text-[6.5px] text-[#7a7a7a] space-y-0.5 leading-tight">
-                  <div><span className="text-[#2997ff]">const</span> <span className="text-white">dev</span> = {"{"}</div>
-                  <div className="pl-1.5">name: <span className="text-emerald-400">&quot;Hưng&quot;</span>,</div>
-                  <div className="pl-1.5">role: <span className="text-emerald-400">&quot;Fullstack&quot;</span>,</div>
-                  <div className="pl-1.5">speed: <span className="text-emerald-400">&quot;100ms&quot;</span></div>
-                  <div>{"};"}</div>
-                </div>
-              </div>
-
-              {/* Floating Shopzone Headphones Card (Top-Right) */}
-              <div className="absolute right-[5%] top-[10%] w-[100px] sm:w-[120px] bg-white text-[#1d1d1f] border border-[#e0e0e0] rounded-md p-2 z-25 rotate-[2.5deg] hover:rotate-0 hover:scale-105 transition-all duration-300">
-                <div className="w-full aspect-video bg-[#f5f5f7] rounded flex items-center justify-center">
-                  <svg className="w-5 h-5 text-[#1d1d1f]" viewBox="0 0 100 100">
-                    <path d="M20 55 A 30 30 0 0 1 80 55" fill="none" stroke="currentColor" strokeWidth="6" />
-                  </svg>
-                </div>
-                <span className="text-[5.5px] sm:text-[7px] font-bold text-[#1d1d1f] block mt-1">Shopzone Audio</span>
-                <span className="text-[5px] sm:text-[6px] text-[#0066cc] font-semibold block">Tốc độ load: 0.9s</span>
-              </div>
-
-              {/* Floating Laptop Card (Bottom-Left) */}
-              <div className="absolute left-[6%] bottom-[8%] w-[100px] sm:w-[125px] bg-[#1c1c1e] border border-white/5 rounded-md p-2 z-25 rotate-[2deg] hover:rotate-0 hover:scale-105 transition-all duration-300">
-                <div className="flex justify-between items-center border-b border-white/5 pb-1 mb-1 text-[5px] sm:text-[6.5px]">
-                  <span className="text-[#cccccc] font-semibold">Active Server</span>
-                  <span className="text-[#2997ff] font-bold">ONLINE</span>
-                </div>
-                <div className="flex gap-1.5 items-center">
-                  <Laptop className="w-3.5 h-3.5 text-[#2997ff]" />
-                  <span className="font-mono text-[5.5px] sm:text-[7px] text-[#cccccc]">Next.js SSR</span>
-                </div>
-              </div>
-
-              {/* Floating Coffee Cup Card (Bottom-Right) */}
-              <div className="absolute right-[6%] bottom-[8%] w-[90px] sm:w-[110px] bg-white text-[#1d1d1f] border border-[#e0e0e0] rounded-md p-2 z-25 rotate-[-3deg] hover:rotate-0 hover:scale-105 transition-all duration-300">
-                <div className="flex items-center gap-2">
-                  <div className="p-1 rounded bg-[#f5f5f7] text-[#0066cc]">
-                    <Coffee className="w-3.5 h-3.5" />
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">Ngọ Viết Hưng</h3>
+                    <Award className="w-4 h-4 text-blue-400" />
                   </div>
-                  <div>
-                    <span className="text-[5.5px] sm:text-[7px] font-bold text-[#1d1d1f] block">Coffee Code</span>
-                    <span className="text-[4.5px] sm:text-[5.5px] text-[#7a7a7a] block">Status: Active</span>
+                  <p className="text-xs text-blue-400 font-medium">Freelance UI/UX & Web Developer</p>
+                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 mt-1">
+                    <MapPin className="w-3 h-3 text-zinc-400" />
+                    <span>Hà Nội, Việt Nam</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Bento Grid Stats */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-1">
+                  <div className="text-[11px] text-zinc-400 font-medium">Tốc độ chuẩn</div>
+                  <div className="text-lg font-bold text-emerald-400 font-display">&lt; 0.8s</div>
+                  <div className="text-[10px] text-zinc-500">PageSpeed xanh 98+</div>
+                </div>
+
+                <div className="p-4 rounded-xl bg-white/5 border border-white/5 space-y-1">
+                  <div className="text-[11px] text-zinc-400 font-medium">Tỷ lệ hài lòng</div>
+                  <div className="text-lg font-bold text-blue-400 font-display">100%</div>
+                  <div className="text-[10px] text-zinc-500">Hỗ trợ trọn vòng đời</div>
+                </div>
+              </div>
+
+              {/* Tech stack badges */}
+              <div className="space-y-2">
+                <span className="text-[11px] uppercase tracking-wider text-zinc-400 font-semibold block">
+                  Công nghệ cốt lõi
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {["Next.js 16", "React 19", "TypeScript", "Tailwind CSS v4", "PostgreSQL", "Prisma", "Docker", "Figma"].map((tech) => (
+                    <span 
+                      key={tech}
+                      className="px-2.5 py-1 text-[11px] font-mono rounded-lg bg-white/5 border border-white/10 text-zinc-300"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quality pledge */}
+              <div className="p-3.5 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-start gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                <p className="text-xs text-blue-200 leading-relaxed">
+                  <strong>Cam kết chất lượng:</strong> Bàn giao mã nguồn sạch sẽ, không mã hoá, dễ dàng mở rộng và tối ưu chuyển đổi khách hàng.
+                </p>
               </div>
 
             </div>

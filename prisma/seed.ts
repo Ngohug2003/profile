@@ -29,12 +29,21 @@ async function main() {
     },
     {
       name: 'HƯNG DEV STUDIO',
-      category: 'SaaS Platform',
+      category: 'Web Doanh Nghiệp',
       description: 'Hệ thống website thương hiệu và nền tảng dịch vụ tối ưu SEO, tự động hóa quản trị và vận hành trên VPS.',
       techStack: ['Next.js 16', 'TypeScript', 'Docker', 'Ubuntu 24.04', 'Nginx'],
       features: ['Tự động triển khai CI/CD', 'Chứng chỉ SSL A+', 'Sao lưu đám mây định kỳ'],
       imageUrl: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
       domain: 'https://hungwebstudio.tech',
+    },
+    {
+      name: 'NEXUS ARCHITECTURE',
+      category: 'Web Doanh Nghiệp',
+      description: 'Trang giới thiệu studio kiến trúc cao cấp phong cách tối giản Bắc Âu, bố cục thoáng đãng và tối ưu tốc độ 100/100.',
+      techStack: ['Next.js', 'Tailwind CSS', 'Framer Motion', 'Vercel'],
+      features: ['Phong cách tối giản Bắc Âu', 'Tải trang dưới 0.6s', 'Chuẩn SEO Google 100%'],
+      imageUrl: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+      domain: 'https://nexus-arch.dev',
     },
   ];
 

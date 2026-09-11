@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Send, CheckCircle2, MessageSquare } from "lucide-react";
+import { X, Send, CheckCircle2, Sparkles } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
+import CustomSelect from "./CustomSelect";
 
 export default function ContactModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -14,31 +16,58 @@ export default function ContactModal() {
   });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleClose = React.useCallback(() => {
+    setIsOpen(false);
+    setIsSubmitted(false);
+    setErrorMessage(null);
+    document.body.classList.remove("modal-open");
+  }, []);
 
   useEffect(() => {
     const handleOpenModal = () => {
       setIsOpen(true);
-      document.body.style.overflow = "hidden"; // Prevent background scrolling
+      setErrorMessage(null);
+      document.body.classList.add("modal-open");
     };
     
     window.addEventListener("open-contact-modal", handleOpenModal);
     return () => {
       window.removeEventListener("open-contact-modal", handleOpenModal);
+      document.body.classList.remove("modal-open");
     };
   }, []);
 
-  const handleClose = () => {
-    setIsOpen(false);
-    setIsSubmitted(false);
-    document.body.style.overflow = "unset"; // Restore background scrolling
-  };
+  // Handle ESC key press
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, handleClose]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    
-    setTimeout(() => {
-      setIsLoading(false);
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch("/api/contacts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Không thể gửi yêu cầu. Vui lòng thử lại sau.");
+      }
+
       setIsSubmitted(true);
       setFormData({
         fullName: "",
@@ -47,171 +76,179 @@ export default function ContactModal() {
         service: "Tư vấn landing page",
         message: "",
       });
-    }, 1200);
+    } catch (err: unknown) {
+      setErrorMessage(err instanceof Error ? err.message : "Đã xảy ra lỗi khi gửi yêu cầu.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-300 ${
-      isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-    }`}>
-      {/* Background overlay with blur */}
-      <div 
-        className="absolute inset-0 bg-black/45 backdrop-blur-sm cursor-default"
-        onClick={handleClose}
-      />
-      
-      {/* Modal Container with scale, slide, and fade transitions */}
-      <div className={`relative w-full max-w-[500px] bg-[#f5f5f7] border border-[#e0e0e0] rounded-lg shadow-xl overflow-hidden z-10 transition-all duration-350 ease-out transform ${
-        isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"
-      }`}>
-        
-        {/* Close Button */}
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 p-1.5 rounded-full bg-white/80 border border-[#e0e0e0] hover:bg-white text-[#1d1d1f] hover:text-[#0066cc] transition-colors z-20 apple-active-scale"
-          aria-label="Close Modal"
-        >
-          <X className="w-4 h-4" />
-        </button>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Background overlay */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute inset-0 bg-zinc-950/60 backdrop-blur-xs cursor-pointer"
+            onClick={handleClose}
+          />
+          
+          {/* Modal Container with GPU-accelerated motion */}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.96, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 16 }}
+            transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1] }}
+            className="relative w-full max-w-[480px] bg-white border border-zinc-200/90 rounded-3xl shadow-2xl overflow-hidden z-10"
+          >
+            {/* Close Button */}
+            <button
+              onClick={handleClose}
+              className="absolute top-5 right-5 p-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-zinc-600 hover:text-zinc-950 transition-colors z-20 cursor-pointer"
+              aria-label="Đóng cửa sổ"
+            >
+              <X className="w-4 h-4" />
+            </button>
 
-        {/* Modal Content */}
-        <div className="p-6 sm:p-8">
-          {isSubmitted ? (
-            <div className="py-8 text-center space-y-5 animate-in fade-in duration-300">
-              <div className="mx-auto w-12 h-12 rounded-full bg-white border border-[#e0e0e0] text-emerald-600 flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6" />
-              </div>
-              <div className="space-y-2">
-                <h3 className="typography-body-strong text-[#1d1d1f]">Gửi yêu cầu thành công!</h3>
-                <p className="typography-caption text-[#7a7a7a] max-w-[320px] mx-auto leading-relaxed">
-                  Cảm ơn bạn đã quan tâm. Tôi sẽ xem xét thông tin chi tiết và liên hệ lại tư vấn cho bạn trong thời gian sớm nhất.
-                </p>
-              </div>
-              <button
-                onClick={handleClose}
-                className="px-6 py-2 text-xs font-normal rounded-full bg-[#0066cc] text-white hover:bg-[#0071e3] transition-colors apple-active-scale"
-              >
-                Đóng cửa sổ
-              </button>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-1.5 pb-2 border-b border-[#e0e0e0]">
-                <h3 className="typography-body-strong text-[#1d1d1f] flex items-center gap-2">
-                  <MessageSquare className="w-5 h-5 text-[#0066cc]" />
-                  <span>Đăng ký tư vấn website</span>
-                </h3>
-                <p className="typography-micro-legal text-[#7a7a7a]">Vui lòng nhập thông tin để tôi hỗ trợ bạn tốt nhất.</p>
-              </div>
-
-              {/* Name */}
-              <div className="space-y-1.5">
-                <label htmlFor="modalFullName" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                  Họ và tên <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  id="modalFullName"
-                  required
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  placeholder="Nguyễn Văn A"
-                  className="w-full px-5 py-2.5 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/40 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption"
-                />
-              </div>
-
-              {/* Phone */}
-              <div className="space-y-1.5">
-                <label htmlFor="modalPhone" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                  Số điện thoại <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  id="modalPhone"
-                  required
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="0987 654 321"
-                  className="w-full px-5 py-2.5 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/40 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption"
-                />
-              </div>
-
-              {/* Email */}
-              <div className="space-y-1.5">
-                <label htmlFor="modalEmail" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                  Địa chỉ Email
-                </label>
-                <input
-                  type="email"
-                  id="modalEmail"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="hello@company.com"
-                  className="w-full px-5 py-2.5 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/40 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption"
-                />
-              </div>
-
-              {/* Service */}
-              <div className="space-y-1.5">
-                <label htmlFor="modalService" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                  Dịch vụ quan tâm <span className="text-red-500">*</span>
-                </label>
-                <div className="relative">
-                  <select
-                    id="modalService"
-                    required
-                    value={formData.service}
-                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                    className="w-full px-5 py-2.5 rounded-full bg-white border border-[#e0e0e0] text-[#1d1d1f] focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption appearance-none cursor-pointer"
-                  >
-                    <option value="Tư vấn landing page">Thiết kế Landing Page</option>
-                    <option value="Website bán hàng">Website Bán Hàng</option>
-                    <option value="SEO cơ bản">Tối ưu cấu trúc SEO</option>
-                    <option value="Khác">Yêu cầu khác...</option>
-                  </select>
-                  <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#7a7a7a]">
-                    <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
-                      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                    </svg>
+            {/* Modal Content */}
+            <div className="p-6 sm:p-8">
+              {isSubmitted ? (
+                <div className="py-8 text-center space-y-4 animate-in fade-in duration-300">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6" />
                   </div>
+                  <div className="space-y-1.5">
+                    <h3 className="text-lg font-bold text-zinc-950 font-display">Gửi yêu cầu thành công!</h3>
+                    <p className="text-xs sm:text-sm text-zinc-600 max-w-[320px] mx-auto leading-relaxed">
+                      Cảm ơn bạn đã tin tưởng. Hưng sẽ chủ động kết nối qua Zalo/SĐT để trao đổi cụ thể nhé.
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleClose}
+                    className="px-6 py-2.5 text-xs font-semibold rounded-full bg-zinc-950 text-white hover:bg-zinc-800 transition-colors cursor-pointer btn-press"
+                  >
+                    Đóng cửa sổ
+                  </button>
                 </div>
-              </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-1 pb-3 border-b border-zinc-100">
+                    <div className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 bg-blue-50 px-2.5 py-0.5 rounded-full mb-1">
+                      <Sparkles className="w-3 h-3" />
+                      <span>Tư vấn 1:1 trực tiếp</span>
+                    </div>
+                    <h3 className="text-lg font-bold text-zinc-950 font-display">
+                      Đăng Ký Tư Vấn Dự Án
+                    </h3>
+                    <p className="text-xs text-zinc-500">
+                      Phản hồi trong vòng 15 - 30 phút • Hoàn toàn miễn phí
+                    </p>
+                  </div>
 
-              {/* Message */}
-              <div className="space-y-1.5">
-                <label htmlFor="modalMessage" className="typography-caption-strong text-[#7a7a7a] uppercase tracking-wider block">
-                  Nội dung yêu cầu <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="modalMessage"
-                  required
-                  rows={3}
-                  value={formData.message}
-                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  placeholder="Mô tả tóm tắt về yêu cầu, mục tiêu dự án của bạn..."
-                  className="w-full px-5 py-2.5 rounded-lg bg-white border border-[#e0e0e0] text-[#1d1d1f] placeholder-[#7a7a7a]/40 focus:outline-none focus:border-[#0066cc] focus:ring-1 focus:ring-[#0066cc] transition-all typography-caption resize-none"
-                />
-              </div>
+                  {errorMessage && (
+                    <div className="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs font-medium text-rose-700 animate-in fade-in duration-200">
+                      {errorMessage}
+                    </div>
+                  )}
 
-              {/* Submit */}
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full py-3 px-6 text-sm font-normal text-white bg-[#0066cc] hover:bg-[#0071e3] disabled:opacity-50 rounded-full transition-all duration-200 apple-active-scale flex items-center justify-center gap-2 cursor-pointer"
-              >
-                {isLoading ? (
-                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
-                ) : (
-                  <>
-                    <Send className="w-4 h-4" />
-                    <span>Gửi yêu cầu tư vấn</span>
-                  </>
-                )}
-              </button>
-            </form>
-          )}
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Họ & Tên <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="Nguyễn Văn A"
+                        value={formData.fullName}
+                        onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-zinc-50/50"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Số điện thoại / Zalo <span className="text-rose-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        placeholder="0987 654 321"
+                        value={formData.phone}
+                        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-zinc-50/50"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Email <span className="text-zinc-400 font-normal">(tuỳ chọn)</span>
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="email@example.com"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-zinc-50/50"
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Dịch vụ quan tâm
+                      </label>
+                      <CustomSelect
+                        value={formData.service}
+                        onChange={(val) => setFormData({ ...formData, service: val })}
+                        options={[
+                          { value: "Tư vấn landing page", label: "Landing Page Chuyển Đổi Cao" },
+                          { value: "Thiết kế website doanh nghiệp", label: "Website Doanh Nghiệp / Bán Hàng" },
+                          { value: "Tối ưu SEO & Tốc độ", label: "Tối Ưu SEO & Tốc Độ PageSpeed" },
+                          { value: "Dự án khác", label: "Tư Vấn Thiết Kế Theo Yêu Cầu" },
+                        ]}
+                      />
+                    </div>
+
+                    <div className="space-y-1">
+                      <label className="text-xs font-semibold text-zinc-800">
+                        Ghi chú thêm (tuỳ chọn)
+                      </label>
+                      <textarea
+                        rows={3}
+                        placeholder="Yêu cầu cụ thể của bạn..."
+                        value={formData.message}
+                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                        className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 bg-zinc-50/50 resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2">
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-full text-white bg-zinc-950 hover:bg-zinc-800 text-xs sm:text-sm font-semibold shadow-xs cursor-pointer btn-press disabled:opacity-60"
+                    >
+                      {isLoading ? (
+                        <span>Đang gửi...</span>
+                      ) : (
+                        <>
+                          <span>Gửi yêu cầu tư vấn ngay</span>
+                          <Send className="w-3.5 h-3.5" />
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }

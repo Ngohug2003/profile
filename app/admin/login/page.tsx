@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, ArrowRight, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { Lock, ArrowRight, ShieldCheck, ArrowLeft, Terminal, AlertCircle } from 'lucide-react';
 
 export default function AdminLoginPage() {
   const [password, setPassword] = useState('');
@@ -36,57 +37,72 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#fbfbfd] px-4 select-none">
-      <div
-        style={{ maxWidth: '420px', width: '100%' }}
-        className="w-full bg-white border border-[#e0e0e0] rounded-2xl p-8 shadow-sm space-y-6"
-      >
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-[#fafafa] bg-subtle-grid px-4 select-none relative">
+      
+      {/* Back to website home link */}
+      <div className="absolute top-6 left-6">
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-900 bg-white border border-zinc-200/80 px-3.5 py-1.5 rounded-full shadow-2xs transition-colors cursor-pointer"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Về trang chủ</span>
+        </Link>
+      </div>
+
+      <div className="w-full max-w-[400px] bg-white border border-zinc-200/90 rounded-3xl p-8 shadow-card space-y-6">
+        
+        {/* Header Branding */}
         <div className="text-center space-y-2">
-          <div className="inline-flex p-3 rounded-full bg-[#f5f5f7] border border-[#e0e0e0] text-[#0066cc]">
-            <Lock className="w-6 h-6" />
+          <div className="w-12 h-12 rounded-2xl bg-zinc-900 text-white flex items-center justify-center mx-auto shadow-xs">
+            <Terminal className="w-6 h-6 text-blue-400" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#1d1d1f]">
+          <h1 className="text-xl font-bold tracking-tight text-zinc-950 font-display">
             Quản Trị Portfolio
           </h1>
-          <p className="text-sm text-[#7a7a7a]">
-            Nhập mật khẩu quản trị để truy cập trang quản lý dự án
+          <p className="text-xs text-zinc-500">
+            Đăng nhập để quản lý danh sách dự án & nội dung hiển thị
           </p>
         </div>
 
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded-lg text-center font-medium">
-            {error}
+          <div className="p-3 bg-rose-50 border border-rose-200/80 text-rose-700 text-xs rounded-xl flex items-center gap-2 animate-in fade-in duration-200">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-[#1d1d1f] uppercase tracking-wider">
+            <label className="text-xs font-semibold text-zinc-800">
               Mật khẩu Admin
             </label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="••••••••••••"
-              className="w-full px-4 py-3 text-sm bg-white border border-[#e0e0e0] rounded-xl focus:outline-none focus:border-[#0066cc] focus:ring-2 focus:ring-[#0066cc]/10 transition-all"
-            />
+            <div className="relative">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="••••••••••••"
+                className="w-full pl-10 pr-4 py-3 text-sm bg-zinc-50/50 border border-zinc-200 rounded-xl focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-600/10 transition-all text-zinc-900"
+              />
+              <Lock className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-[#0066cc] hover:bg-[#0071e3] text-white text-sm font-medium rounded-xl transition-all shadow-sm cursor-pointer disabled:opacity-60"
+            className="w-full flex items-center justify-center gap-2 py-3 px-4 bg-zinc-950 hover:bg-zinc-800 text-white text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-60 btn-press"
           >
             <span>{loading ? 'Đang xác thực...' : 'Đăng Nhập'}</span>
-            <ArrowRight className="w-4 h-4" />
+            <ArrowRight className="w-4 h-4 text-zinc-400" />
           </button>
         </form>
 
-        <div className="pt-4 border-t border-[#f0f0f0] flex items-center justify-center gap-1.5 text-xs text-[#7a7a7a]">
-          <ShieldCheck className="w-4 h-4 text-[#0066cc]" />
-          <span>Bảo mật phiên bằng HttpOnly Cookie</span>
+        <div className="pt-4 border-t border-zinc-100 flex items-center justify-center gap-1.5 text-xs text-zinc-400">
+          <ShieldCheck className="w-3.5 h-3.5 text-blue-600" />
+          <span>Phiên đăng nhập bảo mật HMAC SHA-256</span>
         </div>
       </div>
     </div>
