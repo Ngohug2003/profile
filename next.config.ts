@@ -12,6 +12,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/full-stack-developer-cv-ngo-viet-hung.pdf',
+        destination: '/cv',
+      },
+    ];
+  },
 };
 
 // Tự động reload Prisma Client khi cấu hình thay đổi

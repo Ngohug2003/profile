@@ -2,8 +2,10 @@
 
 import React, { useState } from "react";
 import { Mail, Phone, Facebook, Send, CheckCircle2, Sparkles, Copy, Check } from "lucide-react";
+import { motion } from "motion/react";
 import { appContent } from "@/constants/content";
 import CustomSelect from "./CustomSelect";
+import { staggerContainerVariants, staggerItemVariants, editorialEasing } from "./ScrollReveal";
 
 const iconMap = {
   phone: Phone,
@@ -24,7 +26,17 @@ export default function ContactSection() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copiedPhone, setCopiedPhone] = useState(false);
 
-  const { badge, title, description, servicesList, channels, formTitle, formSubtitle, formSubmitText } = appContent.contact;
+  const { 
+    badge, 
+    title, 
+    description, 
+    servicesList, 
+    channels, 
+    serviceOptions, 
+    formTitle, 
+    formSubtitle, 
+    formSubmitText 
+  } = appContent.contact;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -66,28 +78,40 @@ export default function ContactSection() {
       <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 z-10 relative">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
-          {/* Left Column: Info & Direct Channels (Spans 5 columns) */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Left Column: Info & Direct Channels (Spans 5 columns) - hiện lần lượt */}
+          <motion.div 
+            variants={staggerContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2, margin: "0px 0px -40px 0px" }}
+            custom={{ stagger: 0.1 }}
+            className="lg:col-span-5 space-y-6"
+          >
             <div className="space-y-3.5">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
+              <motion.div variants={staggerItemVariants} className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>{badge}</span>
-              </div>
+              </motion.div>
               
-              <h2 className="typography-display-lg text-zinc-950">
+              <motion.h2 variants={staggerItemVariants} className="typography-display-lg text-zinc-950">
                 {title}
-              </h2>
+              </motion.h2>
               
-              <p className="typography-body text-zinc-600">
+              <motion.p variants={staggerItemVariants} className="typography-body text-zinc-600">
                 {description}
-              </p>
+              </motion.p>
             </div>
 
-            {/* Service Highlights */}
-            <div className="space-y-3 pt-2">
+            {/* Service Highlights - hiện lần lượt */}
+            <motion.div 
+              variants={staggerContainerVariants}
+              custom={{ stagger: 0.08 }}
+              className="space-y-3 pt-2"
+            >
               {servicesList.map((item, index) => (
-                <div 
+                <motion.div 
                   key={index}
+                  variants={staggerItemVariants}
                   className="p-4 rounded-2xl bg-zinc-50 border border-zinc-200/80 flex items-start gap-3.5"
                 >
                   <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600 shrink-0 mt-0.5">
@@ -101,12 +125,12 @@ export default function ContactSection() {
                       {item.desc}
                     </p>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
 
             {/* Fast Communication Channels */}
-            <div className="pt-6 border-t border-zinc-200/80 space-y-3">
+            <motion.div variants={staggerItemVariants} className="pt-6 border-t border-zinc-200/80 space-y-3">
               <span className="text-xs uppercase tracking-wider text-zinc-500 font-semibold block">
                 Kênh liên lạc trực tiếp
               </span>
@@ -129,7 +153,7 @@ export default function ContactSection() {
                 })}
 
                 <button
-                  onClick={() => handleCopyPhone("0333246944")}
+                  onClick={() => handleCopyPhone(appContent.developer.phoneRaw)}
                   className="flex items-center gap-1.5 px-3 py-2 rounded-full bg-zinc-100 hover:bg-zinc-200 text-xs font-medium text-zinc-700 transition-colors cursor-pointer"
                   title="Sao chép số điện thoại"
                 >
@@ -146,12 +170,18 @@ export default function ContactSection() {
                   )}
                 </button>
               </div>
-            </div>
+            </motion.div>
 
-          </div>
+          </motion.div>
 
           {/* Right Column: Contact & Brief Form (Spans 7 columns) */}
-          <div className="lg:col-span-7">
+          <motion.div 
+            initial={{ opacity: 0, y: 28 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.7, ease: editorialEasing }}
+            className="lg:col-span-7"
+          >
             <div className="bg-white border border-zinc-200/90 rounded-3xl p-6 sm:p-10 shadow-card space-y-6">
               
               <div>
@@ -240,12 +270,7 @@ export default function ContactSection() {
                       <CustomSelect
                         value={formData.service}
                         onChange={(val) => setFormData({ ...formData, service: val })}
-                        options={[
-                          { value: "Tư vấn landing page", label: "Landing Page Chuyển Đổi Cao" },
-                          { value: "Thiết kế website doanh nghiệp", label: "Website Doanh Nghiệp / Bán Hàng" },
-                          { value: "Tối ưu SEO & Tốc độ", label: "Tối Ưu SEO & Tốc Độ PageSpeed" },
-                          { value: "Dự án khác", label: "Tư Vấn Thiết Kế Theo Yêu Cầu" },
-                        ]}
+                        options={serviceOptions}
                       />
                     </div>
                   </div>
@@ -281,7 +306,7 @@ export default function ContactSection() {
               )}
 
             </div>
-          </div>
+          </motion.div>
 
         </div>
       </div>

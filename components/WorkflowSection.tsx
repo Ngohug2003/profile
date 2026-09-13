@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import { ArrowRight, CheckCircle2, Sparkles, Clock, FileCheck } from "lucide-react";
+import { motion, AnimatePresence } from "motion/react";
 import { appContent } from "@/constants/content";
+import { staggerContainerVariants, staggerItemVariants } from "./ScrollReveal";
 
 export default function WorkflowSection() {
   const [activeStep, setActiveStep] = useState<number>(0);
@@ -16,60 +18,75 @@ export default function WorkflowSection() {
 
       <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 z-10 relative">
         
-        {/* Section Header */}
-        <div className="max-w-[680px] mb-14 space-y-3.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-400 bg-white/5 rounded-full border border-white/10">
+        {/* Section Header - hiện lần lượt */}
+        <motion.div 
+          variants={staggerContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2, margin: "0px 0px -40px 0px" }}
+          custom={{ stagger: 0.08 }}
+          className="max-w-[680px] mb-14 space-y-3.5"
+        >
+          <motion.div variants={staggerItemVariants} className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-400 bg-white/5 rounded-full border border-white/10">
             <Sparkles className="w-3.5 h-3.5 text-blue-400" />
             <span>{badge}</span>
-          </div>
+          </motion.div>
 
-          <h2 className="typography-display-lg text-white font-display">
+          <motion.h2 variants={staggerItemVariants} className="typography-display-lg text-white font-display">
             {title}
-          </h2>
+          </motion.h2>
 
-          <p className="typography-body text-zinc-400">
+          <motion.p variants={staggerItemVariants} className="typography-body text-zinc-400">
             {description}
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
         {/* Workflow Interactive Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
           
-          {/* Left Column: Steps List (Spans 5 columns) */}
-          <div className="lg:col-span-5 space-y-3 flex flex-col justify-center">
+          {/* Left Column: Steps List (Spans 5 columns) - hiện lần lượt 4 bước */}
+          <motion.div 
+            variants={staggerContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15, margin: "0px 0px -50px 0px" }}
+            custom={{ stagger: 0.1 }}
+            className="lg:col-span-5 space-y-3 flex flex-col justify-center"
+          >
             {steps.map((step, index) => {
               const isSelected = activeStep === index;
               return (
-                <button
-                  key={index}
-                  onClick={() => setActiveStep(index)}
-                  className={`w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 cursor-pointer ${
-                    isSelected
-                      ? "bg-zinc-900 border-blue-500 shadow-md ring-1 ring-blue-500/20"
-                      : "bg-zinc-900/40 border-white/5 text-zinc-400 hover:border-white/15 hover:bg-zinc-900/60"
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition-colors ${
-                      isSelected 
-                        ? "bg-blue-600 text-white" 
-                        : "bg-white/5 text-zinc-400"
-                    }`}>
-                      {step.number}
-                    </span>
-                    <span className={`text-sm font-semibold transition-colors ${
-                      isSelected ? "text-white" : "text-zinc-300"
-                    }`}>
-                      {step.title}
-                    </span>
-                  </div>
-                  <ArrowRight className={`w-4 h-4 transition-transform duration-200 ${
-                    isSelected ? "translate-x-1 text-blue-400" : "text-zinc-600"
-                  }`} />
-                </button>
+                <motion.div key={index} variants={staggerItemVariants}>
+                  <button
+                    onClick={() => setActiveStep(index)}
+                    className={`w-full flex items-center justify-between p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 cursor-pointer ${
+                      isSelected
+                        ? "bg-zinc-900 border-blue-500 shadow-md ring-1 ring-blue-500/20"
+                        : "bg-zinc-900/40 border-white/5 text-zinc-400 hover:border-white/15 hover:bg-zinc-900/60"
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <span className={`w-8 h-8 rounded-xl flex items-center justify-center text-xs font-mono font-bold transition-colors ${
+                        isSelected 
+                          ? "bg-blue-600 text-white" 
+                          : "bg-white/5 text-zinc-400"
+                      }`}>
+                        {step.number}
+                      </span>
+                      <span className={`text-sm font-semibold transition-colors ${
+                        isSelected ? "text-white" : "text-zinc-300"
+                      }`}>
+                        {step.title}
+                      </span>
+                    </div>
+                    <ArrowRight className={`w-4 h-4 transition-transform duration-200 ${
+                      isSelected ? "translate-x-1 text-blue-400" : "text-zinc-600"
+                    }`} />
+                  </button>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
           {/* Right Column: Dynamic Step Details Panel (Spans 7 columns) */}
           <div className="lg:col-span-7">

@@ -2,7 +2,9 @@
 
 import React from "react";
 import { Zap, Smartphone, Search, LineChart, TrendingDown, Smile, AlertCircle, CheckCircle2 } from "lucide-react";
+import { motion } from "motion/react";
 import { appContent } from "@/constants/content";
+import { staggerContainerVariants, staggerItemVariants } from "./ScrollReveal";
 
 const iconMap = {
   Zap,
@@ -20,29 +22,44 @@ export default function ProblemsSection() {
     <section className="relative w-full py-16 md:py-24 bg-[#f8f9fa] border-y border-zinc-200/60 overflow-hidden">
       <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6">
         
-        {/* Section Header */}
-        <div className="max-w-[680px] mb-12 space-y-3.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-rose-600 bg-rose-50 rounded-full border border-rose-100">
+        {/* Section Header - hiện lần lượt badge, title, description */}
+        <motion.div 
+          variants={staggerContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2, margin: "0px 0px -40px 0px" }}
+          custom={{ stagger: 0.08 }}
+          className="max-w-[680px] mb-12 space-y-3.5"
+        >
+          <motion.div variants={staggerItemVariants} className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-rose-600 bg-rose-50 rounded-full border border-rose-100">
             <AlertCircle className="w-3.5 h-3.5" />
             <span>{badge}</span>
-          </div>
+          </motion.div>
 
-          <h2 className="typography-display-lg text-zinc-950">
+          <motion.h2 variants={staggerItemVariants} className="typography-display-lg text-zinc-950">
             {title}
-          </h2>
+          </motion.h2>
 
-          <p className="typography-body text-zinc-600">
+          <motion.p variants={staggerItemVariants} className="typography-body text-zinc-600">
             {description}
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        {/* Problems Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Problems Cards Grid - hiện lần lượt từng card */}
+        <motion.div 
+          variants={staggerContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15, margin: "0px 0px -50px 0px" }}
+          custom={{ stagger: 0.12 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
+        >
           {problems.map((item, index) => {
             const IconComponent = iconMap[item.iconName];
             return (
-              <div 
+              <motion.div 
                 key={index}
+                variants={staggerItemVariants}
                 className="bg-white border border-zinc-200/90 rounded-2xl p-6 sm:p-7 space-y-4 hover:border-zinc-300 hover:shadow-card card-hover-lift"
               >
                 {/* Icon box with subtle background */}
@@ -64,10 +81,10 @@ export default function ProblemsSection() {
                   <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                   <span>Được giải quyết triệt để tại Hưng Dev Studio</span>
                 </div>
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
       </div>
     </section>

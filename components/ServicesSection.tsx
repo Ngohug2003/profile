@@ -2,7 +2,9 @@
 
 import React from "react";
 import { Check, ArrowRight, Sparkles, Layers, ShoppingBag, Gauge } from "lucide-react";
+import { motion } from "motion/react";
 import { appContent } from "@/constants/content";
+import { staggerContainerVariants, staggerItemVariants } from "./ScrollReveal";
 
 export default function ServicesSection() {
   const { badge, title, description, services } = appContent.services;
@@ -28,29 +30,44 @@ export default function ServicesSection() {
       
       <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 z-10">
         
-        {/* Section Header */}
-        <div className="max-w-[680px] mb-14 space-y-3.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
+        {/* Section Header - hiện lần lượt */}
+        <motion.div 
+          variants={staggerContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2, margin: "0px 0px -40px 0px" }}
+          custom={{ stagger: 0.08 }}
+          className="max-w-[680px] mb-14 space-y-3.5"
+        >
+          <motion.div variants={staggerItemVariants} className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
             <Sparkles className="w-3.5 h-3.5" />
             <span>{badge}</span>
-          </div>
+          </motion.div>
 
-          <h2 className="typography-display-lg text-zinc-950">
+          <motion.h2 variants={staggerItemVariants} className="typography-display-lg text-zinc-950">
             {title}
-          </h2>
+          </motion.h2>
 
-          <p className="typography-body text-zinc-600">
+          <motion.p variants={staggerItemVariants} className="typography-body text-zinc-600">
             {description}
-          </p>
-        </div>
+          </motion.p>
+        </motion.div>
 
-        {/* Pricing & Services Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+        {/* Pricing & Services Cards Grid - hiện lần lượt 3 gói dịch vụ */}
+        <motion.div 
+          variants={staggerContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15, margin: "0px 0px -50px 0px" }}
+          custom={{ stagger: 0.12 }}
+          className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 items-stretch"
+        >
           {services.map((item, index) => {
             const isPopular = !!item.popular;
             return (
-              <div 
+              <motion.div 
                 key={index}
+                variants={staggerItemVariants}
                 className={`rounded-3xl p-7 flex flex-col justify-between relative transition-all duration-200 card-hover-lift ${
                   isPopular 
                     ? "bg-gradient-to-b from-blue-50/50 via-white to-white border-2 border-blue-600 shadow-card" 
@@ -131,10 +148,10 @@ export default function ServicesSection() {
                   </button>
                 </div>
 
-              </div>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
 
       </div>
     </section>
