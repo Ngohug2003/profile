@@ -72,3 +72,89 @@ export default function ScrollReveal({
     </motion.div>
   );
 }
+
+// Enhanced with Steep-inspired sequential editorial scroll reveal
+export const editorialEasing = [0.16, 1, 0.3, 1] as const;
+
+export const staggerContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: (custom: { stagger?: number; delay?: number } = {}) => ({
+    opacity: 1,
+    transition: {
+      staggerChildren: custom.stagger ?? 0.1,
+      delayChildren: custom.delay ?? 0.05,
+    },
+  }),
+};
+
+export const staggerItemVariants = {
+  hidden: { opacity: 0, y: 22 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.65,
+      ease: editorialEasing,
+    },
+  },
+};
+
+export const fadeUpVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.65,
+      ease: editorialEasing,
+    },
+  },
+};
+
+interface StaggerContainerProps {
+  children: React.ReactNode;
+  className?: string;
+  stagger?: number;
+  delay?: number;
+  threshold?: number;
+  once?: boolean;
+}
+
+export function StaggerContainer({
+  children,
+  className = "",
+  stagger = 0.1,
+  delay = 0.05,
+  threshold = 0.1,
+  once = true,
+}: StaggerContainerProps) {
+  return (
+    <motion.div
+      className={className}
+      variants={staggerContainerVariants}
+      custom={{ stagger, delay }}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{
+        once,
+        amount: threshold,
+        margin: "0px 0px -50px 0px",
+      }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+interface StaggerItemProps {
+  children: React.ReactNode;
+  className?: string;
+}
+
+export function StaggerItem({ children, className = "" }: StaggerItemProps) {
+  return (
+    <motion.div className={className} variants={staggerItemVariants}>
+      {children}
+    </motion.div>
+  );
+}

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { X, Send, CheckCircle2, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import CustomSelect from "./CustomSelect";
+import { appContent } from "@/constants/content";
 
 export default function ContactModal() {
   const [isOpen, setIsOpen] = useState(false);
@@ -199,12 +200,7 @@ export default function ContactModal() {
                       <CustomSelect
                         value={formData.service}
                         onChange={(val) => setFormData({ ...formData, service: val })}
-                        options={[
-                          { value: "Tư vấn landing page", label: "Landing Page Chuyển Đổi Cao" },
-                          { value: "Thiết kế website doanh nghiệp", label: "Website Doanh Nghiệp / Bán Hàng" },
-                          { value: "Tối ưu SEO & Tốc độ", label: "Tối Ưu SEO & Tốc Độ PageSpeed" },
-                          { value: "Dự án khác", label: "Tư Vấn Thiết Kế Theo Yêu Cầu" },
-                        ]}
+                        options={appContent.contact.serviceOptions}
                       />
                     </div>
 

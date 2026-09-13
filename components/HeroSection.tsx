@@ -2,9 +2,11 @@
 
 import React from "react";
 import { Smartphone, Search, Zap, ArrowRight, Sparkles } from "lucide-react";
+import { motion } from "motion/react";
 import TrustCard from "./TrustCard";
 import HeroMockup from "./HeroMockup";
 import { appContent } from "@/constants/content";
+import { staggerContainerVariants, staggerItemVariants, editorialEasing } from "./ScrollReveal";
 
 const iconMap = {
   Smartphone,
@@ -43,10 +45,16 @@ export default function HeroSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           
           {/* Left Column: Heading & Content (Spans 6 columns) */}
-          <div className="lg:col-span-6 space-y-6 text-left">
+          <motion.div 
+            variants={staggerContainerVariants}
+            initial="hidden"
+            animate="visible"
+            custom={{ stagger: 0.1, delay: 0.1 }}
+            className="lg:col-span-6 space-y-6 text-left"
+          >
             
             {/* Status Pill Badge */}
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-800 bg-white rounded-full border border-zinc-200/80 shadow-2xs">
+            <motion.div variants={staggerItemVariants} className="inline-flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-800 bg-white rounded-full border border-zinc-200/80 shadow-2xs">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -56,10 +64,10 @@ export default function HeroSection() {
               <span className="text-blue-600 font-semibold flex items-center gap-1">
                 <Sparkles className="w-3 h-3" /> Freelancer UI/UX
               </span>
-            </div>
+            </motion.div>
 
             {/* Main Header Headline */}
-            <h1 className="typography-hero-display text-zinc-950 tracking-tight">
+            <motion.h1 variants={staggerItemVariants} className="typography-hero-display text-zinc-950 tracking-tight">
               {title.split("giúp").map((text, idx) => (
                 <React.Fragment key={idx}>
                   {idx === 1 ? (
@@ -69,15 +77,15 @@ export default function HeroSection() {
                   )}
                 </React.Fragment>
               ))}
-            </h1>
+            </motion.h1>
 
             {/* Subtitle Body */}
-            <p className="typography-body text-zinc-600 max-w-[540px]">
+            <motion.p variants={staggerItemVariants} className="typography-body text-zinc-600 max-w-[540px]">
               {description}
-            </p>
+            </motion.p>
 
             {/* Signature Capsule Buttons */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <motion.div variants={staggerItemVariants} className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={handleOpenConsultation}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3.5 text-sm font-medium text-white bg-zinc-950 hover:bg-zinc-800 transition-all duration-200 rounded-full shadow-sm btn-press cursor-pointer"
@@ -93,29 +101,39 @@ export default function HeroSection() {
               >
                 {ctaSecondary}
               </a>
-            </div>
+            </motion.div>
 
-            {/* Trust Cards row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-zinc-200/80">
+            {/* Trust Cards row - hiện lần lượt 3 thẻ */}
+            <motion.div 
+              variants={staggerContainerVariants}
+              custom={{ stagger: 0.1, delay: 0.4 }}
+              className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-6 border-t border-zinc-200/80"
+            >
               {trustCards.map((card, index) => {
                 const IconComponent = iconMap[card.iconName];
                 return (
-                  <TrustCard
-                    key={index}
-                    icon={IconComponent}
-                    title={card.title}
-                    subtitle={card.subtitle}
-                  />
+                  <motion.div key={index} variants={staggerItemVariants}>
+                    <TrustCard
+                      icon={IconComponent}
+                      title={card.title}
+                      subtitle={card.subtitle}
+                    />
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
 
-          </div>
+          </motion.div>
 
           {/* Right Column: High-craft Product Mockup (Spans 6 columns) */}
-          <div className="lg:col-span-6 flex justify-center lg:justify-end">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 28 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.75, delay: 0.35, ease: editorialEasing }}
+            className="lg:col-span-6 flex justify-center lg:justify-end"
+          >
             <HeroMockup />
-          </div>
+          </motion.div>
 
         </div>
       </div>

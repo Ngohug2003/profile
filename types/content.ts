@@ -43,6 +43,39 @@ export interface FocusCardItem {
   desc: string;
 }
 
+export interface SkillItem {
+  name: string;
+  highlight: boolean;
+}
+
+export interface SkillCategoryItem {
+  id: "frontend" | "backend" | "cloud" | "tools";
+  tag: string;
+  label: string;
+  iconName: "Layers" | "Server" | "Cloud" | "Wrench";
+  badgeClass: string;
+  title: string;
+  desc: string;
+  skills: SkillItem[];
+  highlights: string[];
+}
+
+export interface DeveloperStatItem {
+  label: string;
+  value: string;
+  subtext: string;
+}
+
+export interface AboutProfileCard {
+  name: string;
+  role: string;
+  location: string;
+  avatarUrl: string;
+  stats: DeveloperStatItem[];
+  coreTechBadges: string[];
+  qualityPledge: string;
+}
+
 export interface AboutContent {
   badge: string;
   title: string;
@@ -50,6 +83,8 @@ export interface AboutContent {
   bioText1: string;
   bioText2: string;
   focusCards: FocusCardItem[];
+  skillCategories: SkillCategoryItem[];
+  profileCard: AboutProfileCard;
 }
 
 export interface ServiceTierItem {
@@ -98,6 +133,7 @@ export interface PortfolioContent {
   badge: string;
   title: string;
   description: string;
+  categories: string[];
   projects: ProjectItem[];
   bannerTitle: string;
   bannerDesc: string;
@@ -134,12 +170,18 @@ export interface ContactChannelItem {
   href: string;
 }
 
+export interface ServiceOptionItem {
+  value: string;
+  label: string;
+}
+
 export interface ContactContent {
   badge: string;
   title: string;
   description: string;
   servicesList: ContactServiceItem[];
   channels: ContactChannelItem[];
+  serviceOptions: ServiceOptionItem[];
   formTitle: string;
   formSubtitle: string;
   formSubmitText: string;
@@ -161,7 +203,66 @@ export interface FooterContent {
   backToTopText: string;
 }
 
+export interface DeveloperProfile {
+  fullName: string;
+  role: string;
+  shortTitle: string;
+  location: string;
+  phone: string;
+  phoneRaw: string;
+  email: string;
+  githubUrl: string;
+  githubDisplay: string;
+  zaloUrl: string;
+  avatarUrl: string;
+  cvUrl: string;
+  cvDownloadUrl: string;
+  cvName: string;
+}
+
+export interface ProjectPageSkillGroup {
+  id: string;
+  name: string;
+  tag: string;
+  badgeClass: string;
+  summary: string;
+  skills: string[];
+}
+
+export interface ProjectPageStandard {
+  title: string;
+  desc: string;
+  iconName: "Zap" | "ShieldCheck" | "Cpu" | "GitBranch";
+}
+
+export interface ProjectShowcaseMetric {
+  value: string;
+  label: string;
+  subtext: string;
+  iconName: "Zap" | "Smartphone" | "ShieldCheck" | "Clock";
+}
+
+export interface ProjectPageTabItem {
+  id: "projects" | "profile";
+  label: string;
+  iconName: "FolderKanban" | "UserCheck";
+  description: string;
+}
+
+export interface ProjectShowcaseContent {
+  badge: string;
+  title: string;
+  subtitle: string;
+  recruiterNote: string;
+  tabs: ProjectPageTabItem[];
+  metrics: ProjectShowcaseMetric[];
+  skillGroups: ProjectPageSkillGroup[];
+  engineeringStandards: ProjectPageStandard[];
+  popularTechFilters: string[];
+}
+
 export interface AppContent {
+  developer: DeveloperProfile;
   navbar: NavbarContent;
   hero: HeroContent;
   problems: ProblemsContent;
@@ -169,6 +270,7 @@ export interface AppContent {
   services: ServicesContent;
   workflow: WorkflowContent;
   portfolio: PortfolioContent;
+  projectShowcase: ProjectShowcaseContent;
   faq: FaqContent;
   contact: ContactContent;
   footer: FooterContent;

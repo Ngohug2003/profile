@@ -9,7 +9,6 @@ import FaqSection from "@/components/FaqSection";
 import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import ContactModal from "@/components/ContactModal";
-import ScrollReveal from "@/components/ScrollReveal";
 import { fetchProjects } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
@@ -39,35 +38,13 @@ export default async function Home() {
     <main className="min-h-screen w-full flex flex-col bg-[#fafafa]">
       <Navbar />
       <HeroSection />
-      
-      <ScrollReveal>
-        <ProblemsSection />
-      </ScrollReveal>
-      
-      <ScrollReveal>
-        <AboutSection />
-      </ScrollReveal>
-      
-      <ScrollReveal>
-        <ServicesSection />
-      </ScrollReveal>
-      
-      <ScrollReveal>
-        <WorkflowSection />
-      </ScrollReveal>
-      
-      <ScrollReveal>
-        <PortfolioSection initialProjects={initialProjects} />
-      </ScrollReveal>
-      
-      <ScrollReveal>
-        <FaqSection />
-      </ScrollReveal>
-      
-      <ScrollReveal>
-        <ContactSection />
-      </ScrollReveal>
-      
+      <ProblemsSection />
+      <AboutSection />
+      <ServicesSection />
+      <WorkflowSection />
+      <PortfolioSection initialProjects={initialProjects} />
+      <FaqSection />
+      <ContactSection />
       <Footer />
       <ContactModal />
     </main>

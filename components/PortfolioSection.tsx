@@ -4,7 +4,9 @@ import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Check, ArrowRight, ExternalLink, Sparkles, FolderKanban } from "lucide-react";
 import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { motion } from "motion/react";
 import { appContent } from "@/constants/content";
+import { staggerContainerVariants, staggerItemVariants, editorialEasing } from "./ScrollReveal";
 
 export interface DbProject {
   id: string;
@@ -25,7 +27,7 @@ export default function PortfolioSection({ initialProjects = [] }: PortfolioSect
   const [selectedCategory, setSelectedCategory] = useState<string>("Tất cả");
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  const { badge, title, description, bannerTitle, bannerDesc, bannerCta } = appContent.portfolio;
+  const { badge, title, description, categories, bannerTitle, bannerDesc, bannerCta } = appContent.portfolio;
 
   const handleOpenConsultation = (e: React.MouseEvent<HTMLAnchorElement | HTMLButtonElement>) => {
     e.preventDefault();
@@ -53,7 +55,6 @@ export default function PortfolioSection({ initialProjects = [] }: PortfolioSect
     }));
 
   // Lọc theo danh mục
-  const categories = ["Tất cả", "Landing Page", "Website Bán Hàng", "Web Doanh Nghiệp"];
   const filteredProjects = selectedCategory === "Tất cả"
     ? displayProjects
     : displayProjects.filter((p) => {
@@ -258,25 +259,32 @@ export default function PortfolioSection({ initialProjects = [] }: PortfolioSect
 
       <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 z-10">
 
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+        {/* Section Header - hiện lần lượt */}
+        <motion.div 
+          variants={staggerContainerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2, margin: "0px 0px -40px 0px" }}
+          custom={{ stagger: 0.1 }}
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8"
+        >
           <div className="max-w-[640px] space-y-3.5">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
+            <motion.div variants={staggerItemVariants} className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
               <FolderKanban className="w-3.5 h-3.5" />
               <span>{badge}</span>
-            </div>
+            </motion.div>
 
-            <h2 className="typography-display-lg text-zinc-950">
+            <motion.h2 variants={staggerItemVariants} className="typography-display-lg text-zinc-950">
               {title}
-            </h2>
+            </motion.h2>
 
-            <p className="typography-body text-zinc-600">
+            <motion.p variants={staggerItemVariants} className="typography-body text-zinc-600">
               {description}
-            </p>
+            </motion.p>
           </div>
 
           {/* Right Controls: CHỈ CÒN Category Filter Tabs */}
-          <div className="flex flex-wrap gap-1.5 bg-zinc-100/80 p-1.5 rounded-2xl border border-zinc-200/60 w-fit">
+          <motion.div variants={staggerItemVariants} className="flex flex-wrap gap-1.5 bg-zinc-100/80 p-1.5 rounded-2xl border border-zinc-200/60 w-fit">
             {categories.map((cat) => (
               <button
                 key={cat}
@@ -293,12 +301,18 @@ export default function PortfolioSection({ initialProjects = [] }: PortfolioSect
                 {cat}
               </button>
             ))}
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
 
         {/* Projects Display: Embla Carousel (khi có >= 4 dự án) hoặc Grid (khi < 4) */}
         {isCarousel ? (
-          <div className="space-y-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.15, margin: "0px 0px -40px 0px" }}
+            transition={{ duration: 0.7, ease: editorialEasing }}
+            className="space-y-6"
+          >
             {/* Embla Viewport with Inertial Physics & Seamless Infinite Loop */}
             <div className="overflow-hidden cursor-grab active:cursor-grabbing select-none touch-pan-y" ref={emblaRef}>
               <div className="flex -ml-6 items-stretch">
@@ -313,30 +327,47 @@ export default function PortfolioSection({ initialProjects = [] }: PortfolioSect
               </div>
             </div>
 
-            {/* CHẤM TRÒN ĐIỀU HƯỚNG DỰ ÁN (Đã xóa 2 nút trái/phải theo yêu cầu) */}
+            {/* CHẤM TRÒN ĐIỀU HƯỚNG DỰ ÁN */}
             <div className="flex items-center justify-center gap-2 pt-2">
               {filteredProjects.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => scrollTo(idx)}
-                  aria-label={`Chuyển tới dự án ${idx + 1}`}
-                  className={`h-2.5 rounded-full transition-all duration-300 cursor-pointer ${
-                    (selectedIndex % filteredProjects.length) === idx
-                      ? "w-8 bg-zinc-950"
-                      : "w-2.5 bg-zinc-300 hover:bg-zinc-500"
+                  className={`transition-all duration-300 rounded-full cursor-pointer ${
+                    selectedIndex === idx 
+                      ? "w-8 h-2 bg-blue-600 shadow-2xs" 
+                      : "w-2 h-2 bg-zinc-300 hover:bg-zinc-400"
                   }`}
+                  aria-label={`Chuyển tới dự án ${idx + 1}`}
                 />
               ))}
             </div>
-          </div>
+          </motion.div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch">
-            {filteredProjects.map((project, index) => renderProjectCard(project, index, `${project.id}-grid-${index}`))}
-          </div>
+          <motion.div 
+            variants={staggerContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15, margin: "0px 0px -40px 0px" }}
+            custom={{ stagger: 0.12 }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch"
+          >
+            {filteredProjects.map((project, index) => (
+              <motion.div key={project.id || index} variants={staggerItemVariants}>
+                {renderProjectCard(project, index, `${project.id}-grid-${index}`)}
+              </motion.div>
+            ))}
+          </motion.div>
         )}
 
         {/* Bottom Banner Callout */}
-        <div className="mt-14 rounded-3xl bg-zinc-950 text-white p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden">
+        <motion.div 
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.15, margin: "0px 0px -40px 0px" }}
+          transition={{ duration: 0.7, ease: editorialEasing }}
+          className="mt-14 rounded-3xl bg-zinc-950 text-white p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl relative overflow-hidden"
+        >
           <div className="space-y-2 text-center md:text-left z-10">
             <h3 className="text-xl sm:text-2xl font-bold font-display text-white">
               {bannerTitle}
@@ -351,7 +382,7 @@ export default function PortfolioSection({ initialProjects = [] }: PortfolioSect
           >
             {bannerCta}
           </button>
-        </div>
+        </motion.div>
 
       </div>
     </section>

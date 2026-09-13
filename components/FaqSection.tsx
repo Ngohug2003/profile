@@ -2,7 +2,9 @@
 
 import React, { useState } from "react";
 import { HelpCircle, ChevronDown, Check, Headset, ArrowRight, MessageSquare } from "lucide-react";
+import { motion } from "motion/react";
 import { appContent } from "@/constants/content";
+import { staggerContainerVariants, staggerItemVariants } from "./ScrollReveal";
 
 export default function FaqSection() {
   const [activeIndex, setActiveIndex] = useState<number | null>(0);
@@ -32,27 +34,34 @@ export default function FaqSection() {
       <div className="w-full max-w-[1240px] mx-auto px-4 sm:px-6 z-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
           
-          {/* Left Column: Heading & Support card (Spans 5 columns) */}
-          <div className="lg:col-span-5 space-y-6">
+          {/* Left Column: Heading & Support card (Spans 5 columns) - hiện lần lượt */}
+          <motion.div 
+            variants={staggerContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.2, margin: "0px 0px -40px 0px" }}
+            custom={{ stagger: 0.1 }}
+            className="lg:col-span-5 space-y-6"
+          >
             
             {/* Pill Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
+            <motion.div variants={staggerItemVariants} className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold text-blue-600 bg-blue-50 rounded-full border border-blue-100">
               <HelpCircle className="w-3.5 h-3.5" />
               <span>{badge}</span>
-            </div>
+            </motion.div>
 
             {/* Heading */}
-            <h2 className="typography-display-lg text-zinc-950">
+            <motion.h2 variants={staggerItemVariants} className="typography-display-lg text-zinc-950">
               {title}
-            </h2>
+            </motion.h2>
 
             {/* Description */}
-            <p className="typography-body text-zinc-600">
+            <motion.p variants={staggerItemVariants} className="typography-body text-zinc-600">
               {description}
-            </p>
+            </motion.p>
 
             {/* Support Card */}
-            <div className="bg-white border border-zinc-200/80 rounded-3xl p-6 space-y-5 shadow-2xs">
+            <motion.div variants={staggerItemVariants} className="bg-white border border-zinc-200/80 rounded-3xl p-6 space-y-5 shadow-2xs">
               
               <div className="flex items-center gap-3">
                 <div className="p-3 bg-blue-50 text-blue-600 rounded-2xl">
@@ -88,17 +97,25 @@ export default function FaqSection() {
                 <ArrowRight className="w-4 h-4" />
               </button>
 
-            </div>
+            </motion.div>
 
-          </div>
+          </motion.div>
 
-          {/* Right Column: Accordions List (Spans 7 columns) */}
-          <div className="lg:col-span-7 space-y-3">
+          {/* Right Column: Accordions List (Spans 7 columns) - hiện lần lượt từng câu hỏi */}
+          <motion.div 
+            variants={staggerContainerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.15, margin: "0px 0px -50px 0px" }}
+            custom={{ stagger: 0.08 }}
+            className="lg:col-span-7 space-y-3"
+          >
             {faqItems.map((item, index) => {
               const isOpen = activeIndex === index;
               return (
-                <div 
+                <motion.div 
                   key={index}
+                  variants={staggerItemVariants}
                   className={`border rounded-2xl transition-all duration-300 overflow-hidden ${
                     isOpen 
                       ? "bg-white border-blue-500/30 shadow-sm ring-1 ring-blue-500/10" 
@@ -142,10 +159,10 @@ export default function FaqSection() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
         </div>
       </div>
